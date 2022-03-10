@@ -1,3 +1,4 @@
+import 'package:anihub_flutter/screens/auth/register_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
 import 'package:anihub_flutter/utils/functions.dart';
@@ -31,7 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
   }
 
-  onSignUpClicked() {}
+  onSignUpClicked() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => const RegisterScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {

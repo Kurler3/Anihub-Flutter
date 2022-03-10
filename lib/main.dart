@@ -1,4 +1,5 @@
-import 'package:anihub_flutter/screens/login_screen.dart';
+import 'package:anihub_flutter/screens/app.dart';
+import 'package:anihub_flutter/screens/auth/register_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,9 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme:
           ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
-      home: const LoginScreen(),
+      // IN APP ROOT CHECK FOR AUTH CHANGES
+
+      home: const AppRoot(),
     );
   }
 }
