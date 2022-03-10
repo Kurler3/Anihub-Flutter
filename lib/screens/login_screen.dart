@@ -1,7 +1,8 @@
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
 import 'package:anihub_flutter/utils/functions.dart';
-import 'package:anihub_flutter/widgets/input_orange_border.dart';
+import 'package:anihub_flutter/widgets/common_elevated_button.dart';
+import 'package:anihub_flutter/widgets/common_input.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,108 +38,129 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SizedBox(
         width: double.infinity,
         // PADDING OF INNER CHILD
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            // mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // // GIVES SOME SPACE FROM TOP
-              Flexible(
-                child: Container(),
-                flex: 1,
-              ),
-              // APP LOGO
-              Container(
-                width: MediaQuery.of(context).size.width * 0.6,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints viewportConstraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: viewportConstraints.maxHeight,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Image.asset(
-                    appLogoAbsolutePath,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              // FORM CONTAINER
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // EMAIL FORM FIELD
-                      InputOrangeBorder(
-                        controller: _emailController,
-                        label: const Text('Email'),
-                        hintText: "Enter your email",
-                        validatorFunction: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
-                          } else if (!isEmailValid(value)) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      // PASSWORD FORM FIELD
-                      InputOrangeBorder(
-                        controller: _passwordController,
-                        label: const Text('Password'),
-                        hintText: 'Enter your password',
-                        validatorFunction: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please a password';
-                          } else if (value.length < 6) {
-                            return 'Password needs to be at least 6 characters long';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      Container(
-                        margin: const EdgeInsets.only(top: 30),
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // IF EMAIL AND PASSWORD INPUTS ARE VALIDATED
-                            if (_formKey.currentState!.validate()) {
-                              // CALL SIGN IN FUNCTION
-                            }
-                          },
-                          child: const Text("Login"),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 50,
                         ),
-                      ),
-                    ],
+                        // APP LOGO
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: Image.asset(
+                            appLogoAbsolutePath,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        // FORM CONTAINER
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          margin: MediaQuery.of(context).viewInsets,
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // EMAIL FORM FIELD
+                                CommonInput(
+                                  controller: _emailController,
+                                  prefixWidget: const Padding(
+                                    padding: EdgeInsets.only(bottom: 4.0),
+                                    child: Icon(
+                                      Icons.email,
+                                      color: iconColor,
+                                    ),
+                                  ),
+                                  label: const Text('Email'),
+                                  hintText: "Enter your email",
+                                  validatorFunction: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter some text';
+                                    } else if (!isEmailValid(value)) {
+                                      return 'Please enter a valid email address';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                // PASSWORD FORM FIELD
+                                CommonInput(
+                                  controller: _passwordController,
+                                  prefixWidget: const Padding(
+                                    padding: EdgeInsets.only(bottom: 4.0),
+                                    child: Icon(
+                                      Icons.lock,
+                                      color: iconColor,
+                                    ),
+                                  ),
+                                  label: const Text('Password'),
+                                  hintText: 'Enter your password',
+                                  validatorFunction: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please a password';
+                                    } else if (value.length < 6) {
+                                      return 'Password needs to be at least 6 characters long';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: CommonElevatedButton(
+                                    buttonChild: const Text("Login"),
+                                    onPress: () {
+                                      // IF EMAIL AND PASSWORD INPUTS ARE VALIDATED
+                                      if (_formKey.currentState!.validate()) {
+                                        // CALL SIGN IN FUNCTION
+                                      }
+                                    },
+                                    backgroundColor: buttonBackgroundColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          child: Container(),
+                          flex: 1,
+                        ),
+
+                        Container(
+                          margin: MediaQuery.of(context).viewInsets,
+                          child: TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                                "Don't have an account yet? Sign up here!"),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              Flexible(
-                child: Container(),
-                flex: 1,
-              ),
-
-              Container(
-                margin: MediaQuery.of(context).viewInsets,
-                child: TextButton(
-                  onPressed: () {},
-                  child: const Text("Don't have an account yet? Sign up here!"),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
