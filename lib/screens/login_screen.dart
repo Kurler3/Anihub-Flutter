@@ -31,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
   }
 
+  onSignUpClicked() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Container(
                           margin: MediaQuery.of(context).viewInsets,
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: onSignUpClicked,
                             child: const Text(
                                 "Don't have an account yet? Sign up here!"),
                           ),
