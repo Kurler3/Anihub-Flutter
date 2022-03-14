@@ -17,3 +17,9 @@ const iconColor = Colors.white;
 
 // BUTTON BACKGROUND COLOR
 const buttonBackgroundColor = Color.fromARGB(255, 84, 22, 92);
+
+// COLOR GOOD
+const goodGreen = Color.fromARGB(183, 68, 199, 2);
+
+// COLOR BAD
+const badRed = Color.fromARGB(239, 253, 19, 19);
