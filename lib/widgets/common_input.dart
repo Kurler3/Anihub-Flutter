@@ -3,18 +3,18 @@ import '../utils/colors.dart';
 
 class CommonInput extends StatelessWidget {
   final TextEditingController controller;
-  final Widget label;
+  final Widget? label;
   final String hintText;
-  final String? Function(String?) validatorFunction;
+  final String? Function(String?)? validatorFunction;
   final Widget? prefixWidget;
   final int? maxLines;
 
   const CommonInput({
     Key? key,
     required this.controller,
-    required this.label,
+    this.label,
     required this.hintText,
-    required this.validatorFunction,
+    this.validatorFunction,
     this.prefixWidget,
     this.maxLines,
   }) : super(key: key);
@@ -25,16 +25,17 @@ class CommonInput extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
-        color: inputBackgroundColor,
+        color: darkBlue,
       ),
       child: Align(
         alignment: Alignment.bottomLeft,
         child: TextFormField(
           controller: controller,
           maxLines: maxLines,
+          autofocus: false,
           decoration: InputDecoration(
             prefixIcon: prefixWidget,
-
+            label: label,
             // labelStyle: const TextStyle(color: Colors.white),
             // label: label,
             hintMaxLines: maxLines,

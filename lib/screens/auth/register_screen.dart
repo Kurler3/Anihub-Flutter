@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:anihub_flutter/screens/auth/premade_image_picker_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
+import 'package:anihub_flutter/utils/functions.dart';
 import 'package:anihub_flutter/widgets/common_elevated_button.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
@@ -18,8 +20,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Uint8List? _backgroundPic;
   Uint8List? _profilePic;
 
-  chooseImage(bool isBackgroundPic) {}
+  String _backgroundPremadePic = getRandomItem(backgroundPics);
+  String _profilePremadePic = getRandomItem(profilePics);
 
+  // DIALOG THAT APPEARS WHEN USER CLICKS IN BACKGROUND OR PROFILE PICS
   _pickImageDialog(bool isBackgroundPic) {
     showDialog(
       context: context,
@@ -60,7 +64,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
             // PRE-MADE OPTION
             CommonElevatedButton(
               backgroundColor: goodGreen,
-              onPress: () {},
+              onPress: () {
+                // CLOSE DIALOG
+                Navigator.pop(context);
+
+                // NAVIGATE TO PICK PRE-MADE IMAGES SCREEN
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PremadeImagePickerScreen(
+                      initiallySelectedPic: isBackgroundPic
+                          ? _backgroundPremadePic
+                          : _profilePremadePic,
+                      isBackgroundPic: isBackgroundPic,
+                      onConfirmSelect: (selectedImage) {
+                        Navigator.pop(context);
+                        if (selectedImage != null) {
+                          setState(() {
+                            if (isBackgroundPic) {
+                              _backgroundPremadePic = selectedImage;
+                            } else {
+                              _profilePremadePic = selectedImage;
+                            }
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                );
+              },
               buttonChild: const Text(
                 'Pre-made',
                 style: TextStyle(
@@ -85,125 +116,183 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // AVATAR CONTAINER
-                InkWell(
-                  onTap: () => _pickImageDialog(true),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // BACKGROUND IMAGE CONTAINER
-                      Container(
-                        width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.3,
-                        decoration:
-                            const BoxDecoration(color: inputBackgroundColor),
-                        child: CommonNetworkImage(
-                          imageUrl: backgroundPics[0],
-                        ),
-                      ),
-                      // CHOOSE BACKGROUND BUTTON
-                      Positioned(
-                        bottom: -15,
-                        right: 10,
-                        child: Center(
-                          child: Container(
-                            // margin: const EdgeInsets.only(bottom: 40),
-                            height: 35,
-                            width: 35,
-                            decoration: BoxDecoration(
-                              color: mainOrange,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: mainGrey),
-                            ),
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              // size: 30,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // PROFILE IMAGE CONTAINER
-                      Positioned.fill(
-                        bottom: -50,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.3,
-                            height: 120,
-                            decoration: const BoxDecoration(
-                              color: backgroundColor,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
-                            ),
-                            child: Center(
-                              child: InkWell(
-                                onTap: () => _pickImageDialog(false),
-                                child: Container(
-                                  // clipBehavior: Clip.hardEdge,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.25,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: mainGrey,
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                        color: Colors.white, width: 1),
-                                  ),
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.center,
-                                        child: Container(
-                                          clipBehavior: Clip.hardEdge,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                          child: CommonNetworkImage(
-                                            imageUrl: profilePics[0],
-                                          ),
-                                        ),
-                                      ),
-                                      // ADD ICON
-                                      Positioned(
-                                        bottom: -10,
-                                        right: -10,
-                                        child: Container(
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(4.0),
-                                            child: Icon(
-                                              Icons.add,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          decoration: BoxDecoration(
-                                              color: mainOrange,
-                                              borderRadius:
-                                                  BorderRadius.circular(15)),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                backgroundProfilePicWidgets(),
+                // INSIBLE CONTAINER TO LIST TO PROFILE CLICKS
+                Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    height: 75,
+                    child: GestureDetector(
+                      onTap: () => _pickImageDialog(false),
+                    ),
                   ),
-                )
-
-                //
+                ),
+                // const Divider(
+                //   thickness: 2,
+                // ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // BACKGROUND AND PROFILE PICS
+  Widget _backgroundPicWidget() {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // BACKGROUND IMAGE CONTAINER
+        InkWell(
+          onTap: () => _pickImageDialog(true),
+          child: Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.3,
+            decoration: const BoxDecoration(
+              color: darkBlue,
+            ),
+
+            // BACKGROUND IMAGE
+            child: _backgroundPic != null
+                ? Image(
+                    image: MemoryImage(_backgroundPic!),
+                  )
+                : CommonNetworkImage(
+                    imageUrl: _backgroundPremadePic,
+                  ),
+          ),
+        ),
+        // CHOOSE BACKGROUND BUTTON
+        Positioned(
+          bottom: -15,
+          right: 10,
+          child: Center(
+            child: Container(
+              // margin: const EdgeInsets.only(bottom: 40),
+              height: 35,
+              width: 35,
+              decoration: BoxDecoration(
+                color: mainOrange,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: mainGrey),
+              ),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                // size: 30,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _profilePicWidget() {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        InkWell(
+          onTap: () => _pickImageDialog(false),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.3,
+            height: 120,
+            decoration: const BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.all(
+                Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: mainGrey,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+                child: Container(
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+
+                  // PROFILE IMAGE
+                  child: _profilePic != null
+                      ? Image(
+                          image: MemoryImage(_profilePic!),
+                        )
+                      : CommonNetworkImage(
+                          boxFit: BoxFit.fill,
+                          imageUrl: _profilePremadePic,
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // ADD ICON
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Container(
+            child: const Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            decoration: BoxDecoration(
+                color: mainOrange, borderRadius: BorderRadius.circular(15)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget backgroundProfilePicWidgets() {
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        // BACKGROUND PIC
+        _backgroundPicWidget(),
+        // BACK BUTTON
+        Positioned(
+            top: 5,
+            left: 5,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: darkBlue,
+                  border: Border.all(
+                    color: Colors.white,
+                  ),
+                  borderRadius: BorderRadius.circular(10)),
+              child: Center(
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            )),
+        // PROFILE PIC
+        Positioned(
+          bottom: -70,
+          child: _profilePicWidget(),
+        )
+      ],
     );
   }
 }
