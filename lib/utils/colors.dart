@@ -11,6 +11,9 @@ const darkGrey = Color.fromARGB(255, 250, 250, 250);
 // BUTTON ORANGE
 const mainOrange = Color.fromRGBO(255, 158, 3, 1);
 
+// DIALOG BACKGROUND
+const dialogBackground = Color.fromARGB(234, 255, 255, 255);
+
 // INPUT BACKGROUND COLOR
 
 const blue = Color.fromARGB(255, 0, 94, 182);

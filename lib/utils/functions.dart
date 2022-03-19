@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 isEmailValid(String email) => RegExp(
         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -57,4 +58,15 @@ Route createRegisterRouteLeftRight(
           child: child,
         );
       });
+}
+
+// FUNCTION TO PICK IMAGE FROM GALLERY
+pickImage(ImageSource source) async {
+  final ImagePicker _imagePicker = ImagePicker();
+
+  XFile? _file = await _imagePicker.pickImage(source: source);
+
+  if (_file != null) {
+    return await _file.readAsBytes();
+  }
 }

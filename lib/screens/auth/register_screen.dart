@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:anihub_flutter/screens/auth/premade_image_picker_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
@@ -8,6 +9,7 @@ import 'package:anihub_flutter/widgets/common_elevated_button.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -20,8 +22,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Uint8List? _backgroundPic;
   Uint8List? _profilePic;
 
-  String _backgroundPremadePic = getRandomItem(backgroundPics);
-  String _profilePremadePic = getRandomItem(profilePics);
+  String? _backgroundPremadePic = getRandomItem(backgroundPics);
+  String? _profilePremadePic = getRandomItem(profilePics);
+
+  // PICK IMAGE FUNCTION
+  _pickImageGallery(
+      {required bool isBackgroundPic, required bool isCamera}) async {
+    Uint8List? picked =
+        await pickImage(isCamera ? ImageSource.camera : ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() {
+        if (isBackgroundPic) {
+          _backgroundPic = picked;
+          _backgroundPremadePic = null;
+        } else {
+          _profilePic = picked;
+          _backgroundPremadePic = null;
+        }
+      });
+    }
+  }
 
   // DIALOG THAT APPEARS WHEN USER CLICKS IN BACKGROUND OR PROFILE PICS
   _pickImageDialog(bool isBackgroundPic) {
@@ -29,35 +50,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: mainOrange,
+          backgroundColor: dialogBackground,
           titleTextStyle:
               const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           contentTextStyle: const TextStyle(color: Colors.black),
-          title: Text(
-              'Choose a ${isBackgroundPic ? "background" : "profile"} image'),
+          title: const Icon(
+            Icons.image,
+            color: darkBlue,
+            size: 50,
+          ),
           content: Text(
-              "Do you want to choose a custom ${isBackgroundPic ? "background" : "profile"} image or one from our pre-made ones?"),
+            "Do you want to choose a custom ${isBackgroundPic ? "background" : "profile"} image or one from our pre-made ones?",
+          ),
           actions: [
-            // CLOSE OPTION
+            // // CLOSE OPTION
+            // CommonElevatedButton(
+            //   backgroundColor: Colors.red[400],
+            //   onPress: () {
+            //     Navigator.pop(context);
+            //   },
+            //   buttonChild: const Text(
+            //     'Close',
+            //     style: TextStyle(
+            //       color: Colors.white,
+            //     ),
+            //   ),
+            // ),
+
+            // CAMERA OPTION
             CommonElevatedButton(
-              backgroundColor: Colors.red[400],
+              backgroundColor: blue,
               onPress: () {
-                Navigator.pop(context);
+                // CLOSE DIALOG
+                Navigator.of(context).pop();
+
+                _pickImageGallery(
+                    isBackgroundPic: isBackgroundPic, isCamera: true);
               },
-              buttonChild: const Text(
-                'Close',
-                style: TextStyle(
-                  color: Colors.white,
+              buttonChild: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  children: const [
+                    Icon(Icons.add_a_photo),
+                    Text('Camera'),
+                  ],
                 ),
               ),
             ),
             // GALLERY OPTION
             CommonElevatedButton(
-              onPress: () {},
-              buttonChild: const Text(
-                'Gallery',
-                style: TextStyle(
-                  color: Colors.white,
+              onPress: () {
+                // CLOSE DIALOG
+                Navigator.of(context).pop();
+
+                _pickImageGallery(
+                    isBackgroundPic: isBackgroundPic, isCamera: false);
+              },
+              buttonChild: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  children: const [Icon(Icons.menu), Text("Gallery")],
                 ),
               ),
             ),
@@ -82,8 +134,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           setState(() {
                             if (isBackgroundPic) {
                               _backgroundPremadePic = selectedImage;
+                              _backgroundPic = null;
                             } else {
                               _profilePremadePic = selectedImage;
+                              _profilePic = null;
                             }
                           });
                         }
@@ -92,10 +146,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 );
               },
-              buttonChild: const Text(
-                'Pre-made',
-                style: TextStyle(
-                  color: Colors.white,
+              buttonChild: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  children: const [
+                    Icon(Icons.check_box),
+                    Text('Pre-made'),
+                  ],
                 ),
               ),
             ),
@@ -157,10 +214,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             // BACKGROUND IMAGE
             child: _backgroundPic != null
                 ? Image(
+                    fit: BoxFit.fill,
                     image: MemoryImage(_backgroundPic!),
                   )
                 : CommonNetworkImage(
-                    imageUrl: _backgroundPremadePic,
+                    imageUrl: _backgroundPremadePic!,
                   ),
           ),
         ),
@@ -227,7 +285,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         )
                       : CommonNetworkImage(
                           boxFit: BoxFit.fill,
-                          imageUrl: _profilePremadePic,
+                          imageUrl: _profilePremadePic!,
                         ),
                 ),
               ),

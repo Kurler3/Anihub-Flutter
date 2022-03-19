@@ -85,6 +85,11 @@ class _PremadeImagePickerScreenState extends State<PremadeImagePickerScreen> {
                           child: CommonNetworkImage(
                             imageUrl: image,
                             boxFit: BoxFit.fill,
+                            loadingContainerWidth: 200,
+                            loadingContainerHeight:
+                                widget.isBackgroundPic ? 100 : 200,
+                            loadingContainerDecoration: BoxDecoration(
+                                border: Border.all(color: mainGrey)),
                           ),
                         ),
 
