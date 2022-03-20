@@ -6,10 +6,13 @@ import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
 import 'package:anihub_flutter/utils/functions.dart';
 import 'package:anihub_flutter/widgets/common_elevated_button.dart';
+import 'package:anihub_flutter/widgets/common_input.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -19,28 +22,49 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
+
   Uint8List? _backgroundPic;
   Uint8List? _profilePic;
 
   String? _backgroundPremadePic = getRandomItem(backgroundPics);
   String? _profilePremadePic = getRandomItem(profilePics);
 
+  // PASSWORD FIELD IS VISIBLE
+  bool _isPasswordVisible = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _usernameController.dispose();
+    _emailController.dispose();
+    _confirmPasswordController.dispose();
+    _passwordController.dispose();
+  }
+
   // PICK IMAGE FUNCTION
   _pickImageGallery(
       {required bool isBackgroundPic, required bool isCamera}) async {
-    Uint8List? picked =
-        await pickImage(isCamera ? ImageSource.camera : ImageSource.gallery);
+    // CHECK FOR PERMISSIONS
+    if (await hasPickImagePermission(isCamera)) {
+      Uint8List? picked =
+          await pickImage(isCamera ? ImageSource.camera : ImageSource.gallery);
 
-    if (picked != null) {
-      setState(() {
-        if (isBackgroundPic) {
-          _backgroundPic = picked;
-          _backgroundPremadePic = null;
-        } else {
-          _profilePic = picked;
-          _backgroundPremadePic = null;
-        }
-      });
+      if (picked != null) {
+        setState(() {
+          if (isBackgroundPic) {
+            _backgroundPic = picked;
+            _backgroundPremadePic = null;
+          } else {
+            _profilePic = picked;
+            _backgroundPremadePic = null;
+          }
+        });
+      }
     }
   }
 
@@ -188,6 +212,91 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // const Divider(
                 //   thickness: 2,
                 // ),
+
+                // OTHER INPUTS
+                Expanded(
+                    child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      children: [
+                        // USERNAME
+                        CommonInput(
+                          controller: _usernameController,
+                          hintText: "Username",
+                          prefixWidget: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              FontAwesome5Solid.user,
+                              size: ICON_SIZE,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // EMAIL
+                        CommonInput(
+                          keyboardType: TextInputType.emailAddress,
+                          controller: _emailController,
+                          hintText: "Email",
+                          prefixWidget: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              FontAwesome5Solid.at,
+                              size: ICON_SIZE,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // PASSWORD
+                        CommonInput(
+                          maxLines: 1,
+                          controller: _passwordController,
+                          hintText: "Password",
+                          isVisible: _isPasswordVisible,
+                          prefixWidget: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.lock,
+                              size: ICON_SIZE,
+                            ),
+                          ),
+                          suffixWidget: InkWell(
+                            onTap: () => setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            }),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Icon(!_isPasswordVisible
+                                  ? FontAwesome5Solid.eye_slash
+                                  : FontAwesome5Solid.eye),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // CONFIRM PASSWORD
+                        CommonInput(
+                          isVisible: _isPasswordVisible,
+                          controller: _confirmPasswordController,
+                          hintText: "Confirm password",
+                          prefixWidget: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              FontAwesome5Solid.check,
+                              size: ICON_SIZE,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ))
               ],
             ),
           ),

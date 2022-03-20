@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 isEmailValid(String email) => RegExp(
         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -68,5 +69,36 @@ pickImage(ImageSource source) async {
 
   if (_file != null) {
     return await _file.readAsBytes();
+  }
+}
+
+// CHECK FOR CAMERA OR GALLERY PERMISSIONS
+hasPickImagePermission(bool isCamera) async {
+  if (isCamera) {
+    // // IF DENIED REQUEST IT
+    // if (await Permission.camera.status.isDenied) {
+    //   debugPrint('here');
+    //   return await Permission.camera.request().isGranted;
+    // } else {
+    //   return true;
+    // }
+
+    var cameraStatus = await Permission.camera.status;
+
+    debugPrint('camera status: $cameraStatus ${cameraStatus.isGranted}');
+    if (!cameraStatus.isGranted) {
+      await Permission.camera.request();
+    }
+
+    // CHECK AGAIN
+    return await Permission.camera.status.isGranted;
+  } else {
+    // GALLERY (STORAGE)
+    if (await Permission.storage.status.isDenied) {
+      debugPrint('here');
+      return await Permission.storage.request().isGranted;
+    } else {
+      return true;
+    }
   }
 }

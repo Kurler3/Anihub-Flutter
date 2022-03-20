@@ -21,3 +21,6 @@ const backgroundPics = [
   "https://firebasestorage.googleapis.com/v0/b/anihub-8a877.appspot.com/o/pre-mades%2FbackgroundPics%2Flandscape.jpg?alt=media&token=66f8c2b8-3347-4ab4-b702-6eb4c93d0f18",
   "https://firebasestorage.googleapis.com/v0/b/anihub-8a877.appspot.com/o/pre-mades%2FbackgroundPics%2Ftokyo_ghoul.jpg?alt=media&token=3f201fae-17a7-4f68-a5ab-b10fc780667f",
 ];
+
+// ICON SIZE
+const double ICON_SIZE = 26;

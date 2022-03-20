@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>App needs location permission to work</string>
 	<key>CFBundleDisplayName</key>
 	<string>Anihub Flutter</string>
 	<key>CFBundleExecutable</key>

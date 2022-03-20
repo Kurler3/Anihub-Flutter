@@ -25,7 +25,7 @@ class _RotatingImageState extends State<RotatingImage>
   @override
   void initState() {
     super.initState();
-    debugPrint(widget.isRotating.toString());
+
     _animationController = AnimationController(
         vsync: this,
         duration: widget.rotationDuration ?? const Duration(seconds: 9));

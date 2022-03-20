@@ -140,11 +140,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   CommonInput(
                                     maxLines: 1,
                                     controller: _emailController,
+                                    keyboardType: TextInputType.emailAddress,
                                     prefixWidget: const Padding(
-                                      padding: EdgeInsets.only(bottom: 4.0),
+                                      padding: EdgeInsets.all(8),
                                       child: Icon(
                                         Icons.email,
                                         color: iconColor,
+                                        size: 26,
                                       ),
                                     ),
                                     // label: const Text('Email'),
@@ -166,10 +168,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     maxLines: 1,
                                     controller: _passwordController,
                                     prefixWidget: const Padding(
-                                      padding: EdgeInsets.only(bottom: 4.0),
+                                      padding: EdgeInsets.all(8.0),
                                       child: Icon(
                                         Icons.lock,
                                         color: iconColor,
+                                        size: 26,
                                       ),
                                     ),
                                     // label: const Text('Password'),
