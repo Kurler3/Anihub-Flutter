@@ -8,6 +8,9 @@ const mainGrey = Color.fromARGB(224, 177, 177, 177);
 
 const darkGrey = Color.fromARGB(255, 250, 250, 250);
 
+// SNACKBAR BACKGROUND
+const snackbarBackgroundColor = Color.fromARGB(255, 53, 53, 53);
+
 // BUTTON ORANGE
 const mainOrange = Color.fromRGBO(255, 158, 3, 1);
 

@@ -1,6 +1,7 @@
 // VALIDATE EMAIL
 import 'dart:math';
 
+import 'package:anihub_flutter/utils/colors.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,17 +25,19 @@ void showFlushBar({
   Color? leftBarIndicatorColor,
   EdgeInsets? aroundPadding,
   double? borderRadius,
+  Color? background,
 }) {
   Flushbar(
     padding: aroundPadding ?? const EdgeInsets.all(4.0),
     borderRadius:
         borderRadius != null ? BorderRadius.circular(borderRadius) : null,
-    icon: icon,
+    icon: icon ?? const Icon(Icons.info),
+    backgroundColor: background ?? snackbarBackgroundColor,
     leftBarIndicatorColor: leftBarIndicatorColor,
     title: title,
     message: message,
     mainButton: mainButton,
-    duration: duration,
+    duration: duration ?? const Duration(seconds: 2),
   ).show(context);
 }
 
@@ -75,17 +78,8 @@ pickImage(ImageSource source) async {
 // CHECK FOR CAMERA OR GALLERY PERMISSIONS
 hasPickImagePermission(bool isCamera) async {
   if (isCamera) {
-    // // IF DENIED REQUEST IT
-    // if (await Permission.camera.status.isDenied) {
-    //   debugPrint('here');
-    //   return await Permission.camera.request().isGranted;
-    // } else {
-    //   return true;
-    // }
-
     var cameraStatus = await Permission.camera.status;
 
-    debugPrint('camera status: $cameraStatus ${cameraStatus.isGranted}');
     if (!cameraStatus.isGranted) {
       await Permission.camera.request();
     }
@@ -95,7 +89,6 @@ hasPickImagePermission(bool isCamera) async {
   } else {
     // GALLERY (STORAGE)
     if (await Permission.storage.status.isDenied) {
-      debugPrint('here');
       return await Permission.storage.request().isGranted;
     } else {
       return true;

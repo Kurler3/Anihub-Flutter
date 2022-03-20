@@ -1,8 +1,10 @@
+import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/screens/app.dart';
 import 'package:anihub_flutter/screens/auth/register_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -18,14 +20,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme:
-          ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
-      // IN APP ROOT CHECK FOR AUTH CHANGES
+    return MultiProvider(
+      providers: [
+        // USER PROVIDER
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme:
+            ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
+        // IN APP ROOT CHECK FOR AUTH CHANGES
 
-      home: const AppRoot(),
+        home: const AppRoot(),
+      ),
     );
   }
 }

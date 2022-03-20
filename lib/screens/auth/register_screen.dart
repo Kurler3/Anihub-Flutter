@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:anihub_flutter/back_end_methods/auth_methods.dart';
 import 'package:anihub_flutter/screens/auth/premade_image_picker_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
@@ -22,6 +23,8 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  bool _isLoading = false;
+
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -61,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _backgroundPremadePic = null;
           } else {
             _profilePic = picked;
-            _backgroundPremadePic = null;
+            _profilePremadePic = null;
           }
         });
       }
@@ -186,6 +189,69 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  // REGISTER BUTTON CLICKED
+  onRegisterBtnClicked() async {
+    bool isInputValid = true;
+    String? invalidSnackbarMessage;
+
+    // VALIDATION OF DATA INPUTTED
+    if (_passwordController.text.length < 6) {
+      isInputValid = false;
+      invalidSnackbarMessage =
+          'Password needs to be at least 6 characters long!';
+    } else if (_confirmPasswordController.text != _passwordController.text) {
+      isInputValid = false;
+      invalidSnackbarMessage = "Passwords don't match!";
+    } else if (_usernameController.text.isEmpty) {
+      isInputValid = false;
+      invalidSnackbarMessage = "Please fill all fields.";
+    } else if (!isEmailValid(_emailController.text)) {
+      isInputValid = false;
+      invalidSnackbarMessage = "Please enter a valid email address!";
+    }
+
+    if (!isInputValid) {
+      showFlushBar(
+        context: context,
+        title: 'Invalid input',
+        message: invalidSnackbarMessage!,
+        icon: const Icon(Icons.info),
+        leftBarIndicatorColor: badRed,
+      );
+    } else {
+      // SET LOADING TO TRUE (MAKE CIRCULAR PROGRESS INDICATOR APPEAR IN REGISTER BUTTON)
+      setState(() {
+        _isLoading = true;
+      });
+
+      // CALL SIGNUP METHOD.
+      String signUpResult = await AuthMethods().signUp(
+        email: _emailController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        premadeBackgroundPic: _backgroundPremadePic,
+        premadeProfilePic: _profilePremadePic,
+        backgroundPic: _backgroundPic,
+        profilePic: _profilePic,
+      );
+
+      // SET LOADING TO FALSE
+      setState(() {
+        _isLoading = false;
+      });
+      // IF NOT SUCCESS, SHOW FLUSH SNACKBAR
+      if (signUpResult != SUCCESS_VALUE) {
+        showFlushBar(
+          context: context,
+          title: 'Something wrong happened',
+          message: signUpResult,
+        );
+      } else {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,88 +281,110 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // OTHER INPUTS
                 Expanded(
-                    child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      children: [
-                        // USERNAME
-                        CommonInput(
-                          controller: _usernameController,
-                          hintText: "Username",
-                          prefixWidget: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              FontAwesome5Solid.user,
-                              size: ICON_SIZE,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        children: [
+                          // USERNAME
+                          CommonInput(
+                            controller: _usernameController,
+                            hintText: "Username",
+                            prefixWidget: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                FontAwesome5Solid.user,
+                                size: ICON_SIZE,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        // EMAIL
-                        CommonInput(
-                          keyboardType: TextInputType.emailAddress,
-                          controller: _emailController,
-                          hintText: "Email",
-                          prefixWidget: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              FontAwesome5Solid.at,
-                              size: ICON_SIZE,
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          // EMAIL
+                          CommonInput(
+                            keyboardType: TextInputType.emailAddress,
+                            controller: _emailController,
+                            hintText: "Email",
+                            prefixWidget: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                FontAwesome5Solid.at,
+                                size: ICON_SIZE,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        // PASSWORD
-                        CommonInput(
-                          maxLines: 1,
-                          controller: _passwordController,
-                          hintText: "Password",
-                          isVisible: _isPasswordVisible,
-                          prefixWidget: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.lock,
-                              size: ICON_SIZE,
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          // PASSWORD
+                          CommonInput(
+                            maxLines: 1,
+                            controller: _passwordController,
+                            hintText: "Password",
+                            isVisible: _isPasswordVisible,
+                            prefixWidget: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.lock,
+                                size: ICON_SIZE,
+                              ),
+                            ),
+                            suffixWidget: InkWell(
+                              onTap: () => setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              }),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(!_isPasswordVisible
+                                    ? FontAwesome5Solid.eye_slash
+                                    : FontAwesome5Solid.eye),
+                              ),
                             ),
                           ),
-                          suffixWidget: InkWell(
-                            onTap: () => setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            }),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Icon(!_isPasswordVisible
-                                  ? FontAwesome5Solid.eye_slash
-                                  : FontAwesome5Solid.eye),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          // CONFIRM PASSWORD
+                          CommonInput(
+                            isVisible: _isPasswordVisible,
+                            controller: _confirmPasswordController,
+                            hintText: "Confirm password",
+                            prefixWidget: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                FontAwesome5Solid.check,
+                                size: ICON_SIZE,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        // CONFIRM PASSWORD
-                        CommonInput(
-                          isVisible: _isPasswordVisible,
-                          controller: _confirmPasswordController,
-                          hintText: "Confirm password",
-                          prefixWidget: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(
-                              FontAwesome5Solid.check,
-                              size: ICON_SIZE,
-                            ),
+                          const SizedBox(
+                            height: 15,
                           ),
-                        ),
-                      ],
+                          // REGISTER BUTTON
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: CommonElevatedButton(
+                              buttonChild: _isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: mainOrange,
+                                    )
+                                  : const Text(
+                                      "Register",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                              onPress: onRegisterBtnClicked,
+                              backgroundColor: buttonBackgroundColor,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                ))
+                ),
               ],
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:anihub_flutter/back_end_methods/auth_methods.dart';
 import 'package:anihub_flutter/screens/auth/register_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
@@ -6,6 +7,7 @@ import 'package:anihub_flutter/widgets/common_elevated_button.dart';
 import 'package:anihub_flutter/widgets/common_input.dart';
 import 'package:anihub_flutter/widgets/rotating_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,6 +18,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isLogoRotating = true;
+
+  bool _isPasswordVisible = false;
+
+  bool _isLoading = false;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -44,20 +50,31 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_emailController.text.isNotEmpty &&
         isEmailValid(_emailController.text) &&
         _passwordController.text.length >= 6) {
-      // CALL FUNCTION IN AUTHMETHODS CLASS
+      setState(() {
+        _isLoading = true;
+      });
 
+      // CALL FUNCTION IN AUTHMETHODS CLASS
+      String logInResult = await AuthMethods().signIn(
+          email: _emailController.text, password: _passwordController.text);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (logInResult != SUCCESS_VALUE) {
+        showFlushBar(
+          context: context,
+          title: 'Something wrong happened',
+          message: logInResult,
+        );
+      }
     } else {
       // Show snackbar :)
       showFlushBar(
         title: "Invalid Input",
         context: context,
         message: "Email or password data incorrect.",
-        // mainButton: CommonElevatedButton(
-        //   buttonChild: const Icon(Icons.close),
-        //   onPress: () {
-        //     Navigator.of(context).pop();
-        //   },
-        // ),
         duration: const Duration(seconds: 2),
         leftBarIndicatorColor: blue,
         icon: Icon(
@@ -125,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           // FORM CONTAINER
                           Container(
@@ -149,16 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         size: 26,
                                       ),
                                     ),
-                                    // label: const Text('Email'),
                                     hintText: "Enter your email",
-                                    validatorFunction: (value) {
-                                      // if (value == null || value.isEmpty) {
-                                      //   return 'Please enter some text';
-                                      // } else if (!isEmailValid(value)) {
-                                      //   return 'Please enter a valid email address';
-                                      // }
-                                      // return null;
-                                    },
                                   ),
                                   const SizedBox(
                                     height: 20,
@@ -167,6 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   CommonInput(
                                     maxLines: 1,
                                     controller: _passwordController,
+                                    isVisible: _isPasswordVisible,
                                     prefixWidget: const Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Icon(
@@ -175,16 +184,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                         size: 26,
                                       ),
                                     ),
-                                    // label: const Text('Password'),
                                     hintText: 'Enter your password',
-                                    // validatorFunction: (value) {
-                                    //   if (value == null || value.isEmpty) {
-                                    //     return 'Please a password';
-                                    //   } else if (value.length < 6) {
-                                    //     return 'Password needs to be at least 6 characters long';
-                                    //   }
-                                    //   return null;
-                                    // },
+                                    suffixWidget: InkWell(
+                                      onTap: () => setState(() {
+                                        _isPasswordVisible =
+                                            !_isPasswordVisible;
+                                      }),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Icon(!_isPasswordVisible
+                                            ? FontAwesome5Solid.eye_slash
+                                            : FontAwesome5Solid.eye),
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(
                                     height: 20,
@@ -193,7 +205,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: double.infinity,
                                     height: 50,
                                     child: CommonElevatedButton(
-                                      buttonChild: const Text("Login"),
+                                      buttonChild: _isLoading
+                                          ? const CircularProgressIndicator(
+                                              color: mainOrange,
+                                            )
+                                          : const Text("Login"),
                                       onPress: onLoginClicked,
                                       backgroundColor: buttonBackgroundColor,
                                     ),

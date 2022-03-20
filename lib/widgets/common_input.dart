@@ -43,7 +43,7 @@ class CommonInput extends StatelessWidget {
           controller: controller,
           maxLines: maxLines ?? 1,
           autofocus: false,
-          obscureText: isVisible,
+          obscureText: !isVisible,
           decoration: InputDecoration(
             fillColor: darkBlue,
             filled: true,

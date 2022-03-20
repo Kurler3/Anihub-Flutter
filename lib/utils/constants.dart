@@ -24,3 +24,8 @@ const backgroundPics = [
 
 // ICON SIZE
 const double ICON_SIZE = 26;
+
+// SUCCESS STRING RESULT FOR FIREBASE FUNCTIONS
+const String SUCCESS_VALUE = "Success";
+
+const String FAIL_VALUE = "Some error occurred";
