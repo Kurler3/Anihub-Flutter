@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:anihub_flutter/back_end_methods/auth_methods.dart';
 import 'package:anihub_flutter/screens/auth/premade_image_picker_screen.dart';
@@ -11,9 +10,8 @@ import 'package:anihub_flutter/widgets/common_input.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -294,7 +292,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             prefixWidget: const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(
-                                FontAwesome5Solid.user,
+                                FontAwesomeIcons.user,
                                 size: ICON_SIZE,
                               ),
                             ),
@@ -310,7 +308,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             prefixWidget: const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(
-                                FontAwesome5Solid.at,
+                                FontAwesomeIcons.at,
                                 size: ICON_SIZE,
                               ),
                             ),
@@ -338,8 +336,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Icon(!_isPasswordVisible
-                                    ? FontAwesome5Solid.eye_slash
-                                    : FontAwesome5Solid.eye),
+                                    ? FontAwesomeIcons.eyeSlash
+                                    : FontAwesomeIcons.eye),
                               ),
                             ),
                           ),
@@ -354,7 +352,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             prefixWidget: const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(
-                                FontAwesome5Solid.check,
+                                FontAwesomeIcons.check,
                                 size: ICON_SIZE,
                               ),
                             ),

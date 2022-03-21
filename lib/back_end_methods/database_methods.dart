@@ -9,16 +9,16 @@ class DatabaseMethods {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   // CREATE USER
-  Future<void> uploadUser({required UserModal userData}) async {
+  Future<void> uploadUser({required UserModel userData}) async {
     // NO NEED FOR TRY CATCH BECAUSE THIS FUNCTION IS CALLED INSIDE A TRY AND CATCH BLOCK.
 
     await _firebaseFirestore.collection('users').doc(userData.uid).set(
-          UserModal.toMap(userData: userData),
+          UserModel.toMap(userData: userData),
         );
   }
 
   // GET USER DETAILS
-  Future<UserModal?> getUserDetails() async {
+  Future<UserModel?> getUserDetails() async {
     try {
       User? user = _firebaseAuth.currentUser;
       if (user == null) {
@@ -28,7 +28,7 @@ class DatabaseMethods {
       DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
           await _firebaseFirestore.collection('users').doc(user.uid).get();
 
-      return UserModal.fromMap(map: documentSnapshot.data()!);
+      return UserModel.fromMap(map: documentSnapshot.data()!);
     } catch (e) {
       debugPrint(e.toString());
     }

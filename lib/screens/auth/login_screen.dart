@@ -5,9 +5,10 @@ import 'package:anihub_flutter/utils/constants.dart';
 import 'package:anihub_flutter/utils/functions.dart';
 import 'package:anihub_flutter/widgets/common_elevated_button.dart';
 import 'package:anihub_flutter/widgets/common_input.dart';
+import 'package:anihub_flutter/widgets/google_sign_in_button.dart';
 import 'package:anihub_flutter/widgets/rotating_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -82,6 +83,28 @@ class _LoginScreenState extends State<LoginScreen> {
           size: 28,
           color: Colors.blue.shade300,
         ),
+      );
+    }
+  }
+
+  // GOOGLE LOG IN
+  onGoogleLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    String result = await AuthMethods().signInWithGoogle();
+
+    if (result != SUCCESS_VALUE) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      showFlushBar(
+        context: context,
+        title: 'Some error occurred :(',
+        background: badRed,
+        // message: result,
       );
     }
   }
@@ -193,8 +216,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(4.0),
                                         child: Icon(!_isPasswordVisible
-                                            ? FontAwesome5Solid.eye_slash
-                                            : FontAwesome5Solid.eye),
+                                            ? FontAwesomeIcons.eyeSlash
+                                            : FontAwesomeIcons.eye),
                                       ),
                                     ),
                                   ),
@@ -213,6 +236,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                       onPress: onLoginClicked,
                                       backgroundColor: buttonBackgroundColor,
                                     ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  // GOOGLE SIGN IN
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    child: GoogleSignInButton(
+                                        onGoogleLogin: onGoogleLogin),
                                   ),
                                 ],
                               ),

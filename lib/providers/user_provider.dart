@@ -3,9 +3,9 @@ import 'package:anihub_flutter/models/user.dart';
 import 'package:flutter/cupertino.dart';
 
 class UserProvider extends ChangeNotifier {
-  UserModal? _user;
+  UserModel? _user;
 
-  UserModal? get getUser => _user;
+  UserModel? get getUser => _user;
 
   // FUNCTION TO FETCH NEW USER DATA (RELOAD).
   void fetchUserDetails() async {

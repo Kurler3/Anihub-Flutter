@@ -1,5 +1,6 @@
 // IMAGES
 const appLogoAbsolutePath = 'assets/images/app_logo.jpg';
+const googleLogoAbsolutePath = "assets/images/google_logo.png";
 
 // DEFAULT PROFILE PIC URL
 const defaultProfilePicUrl =
