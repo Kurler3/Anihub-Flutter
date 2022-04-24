@@ -1,12 +1,11 @@
 import 'package:anihub_flutter/back_end_methods/auth_methods.dart';
-import 'package:anihub_flutter/models/user.dart';
+
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/screens/auth/loading_screen.dart';
 import 'package:anihub_flutter/screens/auth/login_screen.dart';
 import 'package:anihub_flutter/screens/home/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AppRoot extends StatefulWidget {
   const AppRoot({Key? key}) : super(key: key);

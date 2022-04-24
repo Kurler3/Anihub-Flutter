@@ -1,6 +1,5 @@
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/screens/app.dart';
-import 'package:anihub_flutter/screens/auth/register_screen.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

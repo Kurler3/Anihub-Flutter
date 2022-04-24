@@ -1,4 +1,12 @@
 // IMAGES
+// ignore_for_file: constant_identifier_names
+
+import 'package:anihub_flutter/screens/home/discuss_screen.dart';
+import 'package:anihub_flutter/screens/home/home_screen.dart';
+import 'package:anihub_flutter/screens/home/profile_screen.dart';
+import 'package:anihub_flutter/screens/home/search_screen.dart';
+import 'package:flutter/material.dart';
+
 const appLogoAbsolutePath = 'assets/images/app_logo.jpg';
 const googleLogoAbsolutePath = "assets/images/google_logo.png";
 
@@ -30,3 +38,15 @@ const double ICON_SIZE = 26;
 const String SUCCESS_VALUE = "Success";
 
 const String FAIL_VALUE = "Some error occurred";
+
+// MAIN SCREEN LIST OF SCREENS
+const List<Widget> MAIN_SCREENS = [
+  // FIRST PAGE
+  HomeScreen(),
+  // SECOND PAGE
+  SearchScreen(),
+  // THIRD PAGE
+  DiscussScreen(),
+  // FOURTH PAGE
+  ProfileScreen(),
+];

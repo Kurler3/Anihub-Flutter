@@ -59,16 +59,18 @@ class _LoginScreenState extends State<LoginScreen> {
       String logInResult = await AuthMethods().signIn(
           email: _emailController.text, password: _passwordController.text);
 
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
 
-      if (logInResult != SUCCESS_VALUE) {
-        showFlushBar(
-          context: context,
-          title: 'Something wrong happened',
-          message: logInResult,
-        );
+        if (logInResult != SUCCESS_VALUE) {
+          showFlushBar(
+            context: context,
+            title: 'Something wrong happened',
+            message: logInResult,
+          );
+        }
       }
     } else {
       // Show snackbar :)

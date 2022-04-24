@@ -26,7 +26,7 @@ class LoadingScreen extends StatelessWidget {
           const SizedBox(
             height: 15,
           ),
-          const Text('Fetching some data...'),
+          const Text('Fetching data...'),
           const CircularProgressIndicator(
             color: mainOrange,
           ),
