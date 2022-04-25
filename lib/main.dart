@@ -3,6 +3,7 @@ import 'package:anihub_flutter/screens/app.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -11,12 +12,45 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  // We're using HiveStore for persistence,
+  // so we need to initialize Hive.
+  await initHiveForFlutter();
+
+  final HttpLink httpLink = HttpLink(
+    'https://graphql.anilist.co/',
+  );
+
+  // final AuthLink authLink = AuthLink(
+  //   getToken: () async => 'Bearer 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',
+  //   // OR
+  //   // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
+  // );
+
+  // final Link link = authLink.concat(httpLink);
+
+  ValueNotifier<GraphQLClient> client = ValueNotifier(
+    GraphQLClient(
+      link: httpLink,
+      // The default store is the InMemoryStore, which does NOT persist to disk
+      cache: GraphQLCache(store: HiveStore()),
+    ),
+  );
+
+  runApp(GraphQLProvider(
+    client: client,
+    child: const MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -28,7 +62,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'AniHub',
         theme:
             ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
         // IN APP ROOT CHECK FOR AUTH CHANGES

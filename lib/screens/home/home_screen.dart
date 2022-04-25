@@ -1,3 +1,5 @@
+import 'package:anihub_flutter/utils/constants/anime_constants.dart';
+import 'package:anihub_flutter/widgets/anime_list_widget.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,8 +12,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("HOME SCREEN BOI"),
+    return Center(
+      child: AnimeListWidget(
+        title: "Popular",
+        category: ANIME_CATEGORY.popular,
+      ),
     );
   }
 }
