@@ -5,13 +5,18 @@ import 'package:flutter/material.dart';
 
 class AnimeCard extends StatelessWidget {
   final Anime animeData;
+  final double? customWidth;
 
-  const AnimeCard({Key? key, required this.animeData}) : super(key: key);
+  const AnimeCard({
+    Key? key,
+    required this.animeData,
+    this.customWidth,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: ANIME_CARD_DIMENSIONS,
+      width: customWidth ?? ANIME_CARD_DIMENSIONS,
       margin: const EdgeInsets.all(4.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -32,7 +37,7 @@ class AnimeCard extends StatelessWidget {
           ),
 
           // Space between cover and title
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
 
           // Title in english
           Expanded(

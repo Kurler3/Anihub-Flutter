@@ -58,3 +58,34 @@ Map<String, dynamic> TRENDING_QUERY_VARIABLES = {
 
 // MOST FAVOURITED QUERY VARIABLES
 
+// COMMON QUERY STRING
+const String ANIME_LIST_QUERY = """
+    query (\$page: Int, \$perPage: Int, \$sort: [MediaSort], \$season: MediaSeason, \$seasonYear: Int, \$search: String) {
+      Page(page: \$page, perPage: \$perPage) {
+        pageInfo {
+          total
+          perPage
+        }
+        media(type: ANIME, sort: \$sort, season: \$season, seasonYear: \$seasonYear, search: \$search) {
+          id
+          title {
+            romaji 
+            english
+            native
+          }
+          status
+          season
+          seasonYear
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+          genres
+          averageScore
+          isAdult
+        }
+      }
+    }
+  """;

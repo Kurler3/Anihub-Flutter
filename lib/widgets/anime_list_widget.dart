@@ -23,37 +23,6 @@ class AnimeListWidget extends StatefulWidget {
 }
 
 class _AnimeListWidgetState extends State<AnimeListWidget> {
-  String query = """
-    query (\$page: Int, \$perPage: Int, \$sort: [MediaSort], \$season: MediaSeason, \$seasonYear: Int) {
-      Page(page: \$page, perPage: \$perPage) {
-        pageInfo {
-          total
-          perPage
-        }
-        media(type: ANIME, sort: \$sort, season: \$season, seasonYear: \$seasonYear) {
-          id
-          title {
-            romaji 
-            english
-            native
-          }
-          status
-          season
-          seasonYear
-          coverImage {
-            extraLarge
-            large
-            medium
-            color
-          }
-          genres
-          averageScore
-          isAdult
-        }
-      }
-    }
-  """;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -107,7 +76,7 @@ class _AnimeListWidgetState extends State<AnimeListWidget> {
               ),
               child: Query(
                 options: QueryOptions(
-                  document: gql(query),
+                  document: gql(ANIME_LIST_QUERY),
                   variables: widget.queryVariablesObject,
                 ),
                 builder: (QueryResult result,

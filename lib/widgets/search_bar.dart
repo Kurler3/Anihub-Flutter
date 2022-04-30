@@ -14,6 +14,9 @@ class SearchBar extends StatefulWidget {
   // FUNCTION THAT IS CALLED WHEN SUBMITTED (NOT REQUIRED)
   final Function? onSubmit;
 
+  // FUNCTION THAT IS CALLED WHEN TEXT IS CLEARED
+  final Function? onClear;
+
   final double searchBarWidth;
   final double searchBarHeight;
 
@@ -25,6 +28,7 @@ class SearchBar extends StatefulWidget {
     required this.searchBarHeight,
     this.onChangeInput,
     this.onSubmit,
+    this.onClear,
   }) : super(key: key);
 
   @override
@@ -93,6 +97,10 @@ class _SearchBarState extends State<SearchBar> {
                     if (widget.onChangeInput != null) {
                       widget.onChangeInput!(newValue);
                     }
+
+                    if (newValue.isEmpty && widget.onClear != null) {
+                      widget.onClear!();
+                    }
                   },
                   onFieldSubmitted: (value) {
                     debugPrint(value);
@@ -101,10 +109,10 @@ class _SearchBarState extends State<SearchBar> {
                       if (widget.onSubmit != null) {
                         widget.onSubmit!(value);
                       }
-                      widget.editingController.clear();
-                      setState(() {
-                        _isShowClearIcon = false;
-                      });
+                      // widget.editingController.clear();
+                      // setState(() {
+                      //   _isShowClearIcon = false;
+                      // });
                     }
                   },
                 ),
@@ -112,7 +120,6 @@ class _SearchBarState extends State<SearchBar> {
             ),
 
             // CLEAR ICON
-
             _isShowClearIcon
                 ? IconButton(
                     onPressed: () {
@@ -120,6 +127,10 @@ class _SearchBarState extends State<SearchBar> {
                       setState(() {
                         _isShowClearIcon = false;
                       });
+
+                      if (widget.onClear != null) {
+                        widget.onClear!();
+                      }
                     },
                     icon: const Icon(Icons.close),
                   )
