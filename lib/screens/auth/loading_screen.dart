@@ -8,29 +8,31 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          RotatingImage(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Image.asset(
-                appLogoAbsolutePath,
-                fit: BoxFit.fill,
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            RotatingImage(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Image.asset(
+                  appLogoAbsolutePath,
+                  fit: BoxFit.fill,
+                ),
               ),
+              isRotating: true,
             ),
-            isRotating: true,
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          const Text('Fetching data...'),
-          const CircularProgressIndicator(
-            color: mainOrange,
-          ),
-        ],
+            const SizedBox(
+              height: 15,
+            ),
+            const Text('Fetching data...'),
+            const CircularProgressIndicator(
+              color: mainOrange,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,18 +1,21 @@
+import 'package:anihub_flutter/classes/anime/anime.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants/anime_constants.dart';
+import 'package:anihub_flutter/widgets/anime/anime_card.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class AnimeListWidget extends StatefulWidget {
+  // TITLE
   final String title;
 
-  // FROM ENUM CATEGORY
-  final ANIME_CATEGORY category;
+  // VARIABLES OBJECT TO PASS INTO GRAPHQL QUERY OPTIONS
+  final Map<String, dynamic> queryVariablesObject;
 
   const AnimeListWidget({
     Key? key,
     required this.title,
-    required this.category,
+    required this.queryVariablesObject,
   }) : super(key: key);
 
   @override
@@ -20,20 +23,32 @@ class AnimeListWidget extends StatefulWidget {
 }
 
 class _AnimeListWidgetState extends State<AnimeListWidget> {
-  String popularQuery = """
-    query (\$page: Int, \$perPage: Int, \$search: String) {
+  String query = """
+    query (\$page: Int, \$perPage: Int, \$sort: [MediaSort], \$season: MediaSeason, \$seasonYear: Int) {
       Page(page: \$page, perPage: \$perPage) {
         pageInfo {
           total
           perPage
         }
-        media(search: \$search, type: ANIME, sort: POPULARITY_DESC) {
+        media(type: ANIME, sort: \$sort, season: \$season, seasonYear: \$seasonYear) {
           id
           title {
             romaji 
             english
             native
           }
+          status
+          season
+          seasonYear
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+          genres
+          averageScore
+          isAdult
         }
       }
     }
@@ -41,36 +56,6 @@ class _AnimeListWidgetState extends State<AnimeListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Query(
-      options: QueryOptions(
-        document: gql(popularQuery),
-        variables: const {
-          "page": 1,
-          "perPage": 5,
-          "search": "My Hero Academia",
-        },
-      ),
-      builder: (QueryResult result,
-          {VoidCallback? refetch, FetchMore? fetchMore}) {
-        // EXCEPTION
-        if (result.hasException) {
-          return Text(result.exception.toString());
-        }
-
-        // IS LOADING
-        if (result.isLoading) {
-          return const Text("Loading...");
-        }
-
-        // SEE DATA FETCHED
-        debugPrint("Animes: " + result.data.toString());
-
-        return _displayList(result.data);
-      },
-    );
-  }
-
-  Widget _displayList(Map<String, dynamic>? data) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
@@ -113,17 +98,61 @@ class _AnimeListWidgetState extends State<AnimeListWidget> {
             const SizedBox(
               height: 10,
             ),
-            Expanded(
-              child: ListView.builder(
-                  itemCount: data?["Page"]["pageInfo"]["perPage"],
-                  itemBuilder: (BuildContext context, int index) {
-                    return Text(
-                        data?["Page"]["media"][index]["title"]["english"]);
-                  }),
-            )
+            Container(
+              height: MediaQuery.of(context).size.height * 0.35,
+              // clipBehavior: Clip.none,
+              constraints: const BoxConstraints(
+                minWidth: double.infinity,
+                minHeight: 200,
+              ),
+              child: Query(
+                options: QueryOptions(
+                  document: gql(query),
+                  variables: widget.queryVariablesObject,
+                ),
+                builder: (QueryResult result,
+                    {VoidCallback? refetch, FetchMore? fetchMore}) {
+                  // EXCEPTION
+                  if (result.hasException) {
+                    return Text(result.exception.toString());
+                  }
+
+                  // IS LOADING
+                  if (result.isLoading) {
+                    return _displayLoadingList();
+                  }
+
+                  return _displayList(result.data);
+                },
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _displayList(Map<String, dynamic>? data) {
+    return ListView.builder(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: data?["Page"]["pageInfo"]["perPage"],
+        itemBuilder: (BuildContext context, int index) {
+          Anime animeData =
+              Anime.fromQueryResultMap(data?["Page"]["media"][index]);
+
+          return AnimeCard(
+            animeData: animeData,
+            key: Key("anime_card_${animeData.id}"),
+          );
+        });
+  }
+
+  // LOADING ANIME LIST
+  Widget _displayLoadingList() {
+    return const Center(
+      child: Text("Loading..."),
     );
   }
 }

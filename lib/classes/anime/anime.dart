@@ -8,27 +8,18 @@ import 'package:anihub_flutter/classes/anime/anime_trailer.dart';
 
 class Anime {
   // ID OF ANIME TO LATER STORE IN FAVORITES OF USER
-  String id;
+  int id;
 
   // TITLE
-  String englishTitle;
-  String nativeTitle;
-  String romajiTitle;
-
-  // TYPE (ANIME OR MANGA)
-  String type;
+  String? englishTitle;
+  String? nativeTitle;
+  String? romajiTitle;
 
   // STATUS (finished, releasing...)
   String status;
 
   // Description
   String? description;
-
-  // Start Date
-  String startDate;
-
-  // End Date
-  String endDate;
 
   // Season (winter, spring, summer, fall)
   String season;
@@ -52,10 +43,10 @@ class Anime {
   int? updatedAt;
 
   // Cover image
-  AnimeCover? animeCover;
+  AnimeCover animeCover;
 
   // Banner image
-  String animeBanner;
+  String? animeBanner;
 
   // GENRES
   List<String> genres;
@@ -94,15 +85,33 @@ class Anime {
     required this.englishTitle,
     required this.nativeTitle,
     required this.romajiTitle,
-    required this.type,
     required this.status,
-    required this.startDate,
-    required this.endDate,
     required this.season,
     required this.seasonYear,
-    required this.animeBanner,
+    required this.animeCover,
     required this.genres,
     required this.averageScore,
     required this.isAdult,
   });
+
+  static Anime fromQueryResultMap(Map<String, dynamic> data) {
+    return Anime(
+      id: data["id"],
+      englishTitle: data["title"]["english"],
+      nativeTitle: data["title"]["native"],
+      romajiTitle: data["title"]["romaji"],
+      status: data["status"],
+      season: data["season"],
+      seasonYear: data["seasonYear"],
+      animeCover: AnimeCover(
+        extraLarge: data["coverImage"]["extraLarge"],
+        large: data["coverImage"]["large"],
+        medium: data["coverImage"]["medium"],
+        color: data["coverImage"]["color"],
+      ),
+      genres: List<String>.from(data["genres"]),
+      averageScore: data["averageScore"],
+      isAdult: data["isAdult"],
+    );
+  }
 }

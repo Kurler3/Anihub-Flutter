@@ -50,3 +50,16 @@ const List<Widget> MAIN_SCREENS = [
   // FOURTH PAGE
   ProfileScreen(),
 ];
+
+const LinearGradient mainScreenBackground = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [
+    Color.fromARGB(47, 2, 163, 221),
+    Color.fromARGB(12, 0, 74, 203),
+  ],
+);
+
+const SEARCH_SCREEN_MAIN_TEXT = "What are you looking for?";
+const SEARCH_SCREEN_SECONDARY_TEXT =
+    "Find your favorite anime between more than 10,000 animes";
