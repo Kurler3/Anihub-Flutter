@@ -65,6 +65,9 @@ const String ANIME_LIST_QUERY = """
         pageInfo {
           total
           perPage
+          currentPage
+          lastPage
+          hasNextPage
         }
         media(type: ANIME, sort: \$sort, season: \$season, seasonYear: \$seasonYear, search: \$search) {
           id

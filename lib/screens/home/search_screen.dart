@@ -1,4 +1,5 @@
 import 'package:anihub_flutter/classes/anime/anime.dart';
+import 'package:anihub_flutter/providers/search_history_provider.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
 import 'package:anihub_flutter/utils/constants/anime_constants.dart';
@@ -8,6 +9,7 @@ import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -17,14 +19,17 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  // USING THIS KEY TO PREVENT SCROLLING BACK TO TOP WHEN FETCHING MORE IN GRAPHQL
+  final _gridKey = GlobalKey();
+
   final TextEditingController _searchController = TextEditingController();
 
-  String _searchInput = "";
+  // SCROLL CONTROLLER FOR FETCHIGN MORE ANIME DATA.
+  final ScrollController _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  late FetchMoreOptions _fetchMoreOptions;
+
+  String _searchInput = "";
 
   @override
   void dispose() {
@@ -32,8 +37,16 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.dispose();
   }
 
+  Future<void> _refresh() async {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    // SEARCH HISTORY
+    List<String> searchHistory =
+        Provider.of<SearchHistoryProvider>(context).getSearchHistory;
+
     return Container(
       decoration: const BoxDecoration(
         gradient: mainScreenBackground,
@@ -45,6 +58,7 @@ class _SearchScreenState extends State<SearchScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SearchBar(
+                searchHistory: searchHistory,
                 placeHolder: "Search",
                 editingController: _searchController,
                 searchBarWidth: double.infinity,
@@ -66,6 +80,49 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _animeGridView(result, bool isLoading) {
+    return Column(
+      children: [
+        // GRID
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _refresh,
+            child: GridView.builder(
+              // key: _gridKey,
+              controller: _scrollController,
+              itemCount: result.data!["Page"]["media"].length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 1.0,
+                crossAxisSpacing: 1.0,
+                childAspectRatio: 0.55,
+              ),
+              itemBuilder: (BuildContext context, int index) {
+                Anime animeData = Anime.fromQueryResultMap(
+                    result.data!["Page"]["media"][index]);
+
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: AnimeCard(
+                    animeData: animeData,
+                    key: Key("search_anime_card_${animeData.id}"),
+                    customWidth: 100,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        // LOADING CIRCLE
+        isLoading
+            ? const CircularProgressIndicator(
+                color: mainOrange,
+              )
+            : Container(),
+      ],
     );
   }
 
@@ -93,49 +150,45 @@ class _SearchScreenState extends State<SearchScreen> {
           }
 
           // LOADING
-          if (result.isLoading) {
+          if (result.isLoading && result.data == null) {
             return const Center(
               child: CircularProgressIndicator(
                 color: mainOrange,
               ),
             );
           }
+
+          _fetchMoreOptions = FetchMoreOptions(
+              variables: {
+                'page': result.data!['Page']['pageInfo']['currentPage'] + 1
+              },
+              updateQuery: (previousResultData, fetchMoreResultData) {
+                final List<dynamic> newAnimeList = [
+                  ...previousResultData!["Page"]["media"],
+                  ...fetchMoreResultData!["Page"]["media"],
+                ];
+
+                fetchMoreResultData["Page"]["media"] = newAnimeList;
+
+                return fetchMoreResultData;
+              });
+
           // GOOD
-          //return Text("Fetched!");
-
-          // SCROLL CONTROLLER FOR FETCHIGN MORE ANIME DATA.
-          final ScrollController _scrollController = ScrollController();
-
-          _scrollController.addListener(() {
-            if (_scrollController.position.pixels ==
-                _scrollController.position.maxScrollExtent) {
-              // FETCH MORE
-              debugPrint("Fetch More: ");
-            }
-          });
-
-          return GridView.builder(
-            controller: _scrollController,
-            itemCount: result.data!["Page"]["media"].length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 1.0,
-              crossAxisSpacing: 1.0,
-              childAspectRatio: 0.55,
-            ),
-            itemBuilder: (BuildContext context, int index) {
-              Anime animeData = Anime.fromQueryResultMap(
-                  result.data!["Page"]["media"][index]);
-
-              return Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: AnimeCard(
-                  animeData: animeData,
-                  key: Key("search_anime_card_${animeData.id}"),
-                  customWidth: 100,
-                ),
-              );
+          return NotificationListener(
+            onNotification: (t) {
+              if (t is ScrollEndNotification &&
+                  _scrollController.position.pixels >=
+                      _scrollController.position.maxScrollExtent &&
+                  result.data!['Page']['pageInfo']['hasNextPage']) {
+                // CALL FETCH MORE WITH FETCH OPTIONS
+                fetchMore!(_fetchMoreOptions);
+              }
+              return true;
             },
+            child: _animeGridView(
+              result,
+              result.isLoading,
+            ),
           );
         },
       ),
@@ -151,23 +204,27 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 120.0),
+                padding: const EdgeInsets.symmetric(horizontal: 120.0),
                 child: Text(
                   SEARCH_SCREEN_MAIN_TEXT,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w300,
-                  ),
+                      fontSize: 25,
+                      fontWeight: FontWeight.w400,
+                      foreground: Paint()
+                        ..shader = const LinearGradient(
+                          colors: <Color>[Colors.white, mainGrey],
+                        ).createShader(
+                            const Rect.fromLTWH(0.0, 0.0, 400.0, 70.0))),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               // FIND YOUR FAVORITE ANIME
-              Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 40.0),
                 child: Text(
                   SEARCH_SCREEN_SECONDARY_TEXT,

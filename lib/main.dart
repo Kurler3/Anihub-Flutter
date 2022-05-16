@@ -1,3 +1,4 @@
+import 'package:anihub_flutter/providers/search_history_provider.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/screens/app.dart';
 import 'package:anihub_flutter/utils/colors.dart';
@@ -58,6 +59,10 @@ class _MyAppState extends State<MyApp> {
         // USER PROVIDER
         ChangeNotifierProvider(
           create: (_) => UserProvider(),
+        ),
+        // SEARCH HISTORY PROVIDER
+        ChangeNotifierProvider(
+          create: (_) => SearchHistoryProvider(),
         ),
       ],
       child: MaterialApp(
