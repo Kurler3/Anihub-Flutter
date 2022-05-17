@@ -22,6 +22,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         // BODY
         body: MAIN_SCREENS.elementAt(_selectedIndex),
         // BOTTOM NAVIGATION BAR

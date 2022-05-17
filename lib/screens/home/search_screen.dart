@@ -28,6 +28,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   String _searchInput = "";
 
+  bool _isInputting = false;
+
   @override
   void dispose() {
     super.dispose();
@@ -74,10 +76,26 @@ class _SearchScreenState extends State<SearchScreen> {
                     _searchInput = "";
                   });
                 },
+                onFocus: () {
+                  setState(() {
+                    _isInputting = true;
+                  });
+                },
+                onUnFocus: () {
+                  setState(() {
+                    _isInputting = false;
+                  });
+                },
               ),
             ),
-            // IF NO SEARCH INPUT, THEN SHOW TEXT AND TRENDING ANIMES
-            _searchInput.isEmpty ? _noInputView() : _withInputView(),
+
+            _isInputting && searchHistory.isNotEmpty
+                ? Container()
+                :
+                // IF NO SEARCH INPUT, THEN SHOW TEXT AND TRENDING ANIMES
+                _searchInput.isEmpty
+                    ? _noInputView()
+                    : _withInputView(),
           ],
         ),
       ),

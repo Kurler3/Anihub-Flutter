@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/widgets/SearchBar/search_history_item.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,11 @@ class SearchBar extends StatefulWidget {
   // FUNCTION THAT IS CALLED WHEN TEXT IS CLEARED
   final Function? onClear;
 
+  // WHEN FOCUS IN INPUT
+  final Function? onFocus;
+  // WHEN UNFOCUS in input
+  final Function? onUnFocus;
+
   final double searchBarWidth;
   final double searchBarHeight;
 
@@ -35,6 +42,8 @@ class SearchBar extends StatefulWidget {
     this.onSubmit,
     this.onClear,
     this.searchHistory,
+    this.onFocus,
+    this.onUnFocus,
   }) : super(key: key);
 
   @override
@@ -43,8 +52,12 @@ class SearchBar extends StatefulWidget {
 
 class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
   bool _isShowClearIcon = false;
-  bool _isFocused = false;
   final FocusNode _searchNode = FocusNode();
+
+  final KeyboardVisibilityController _keyboardVisibilityController =
+      KeyboardVisibilityController();
+
+  late StreamSubscription<bool> keyboardSubscription;
 
   _handleShowClearIcon(newValue) {
     if (newValue.isNotEmpty && !_isShowClearIcon) {
@@ -59,9 +72,23 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    keyboardSubscription =
+        _keyboardVisibilityController.onChange.listen((bool isVisible) {
+      if (isVisible && widget.onFocus != null) {
+        widget.onFocus!();
+      } else if (!isVisible && widget.onUnFocus != null) {
+        widget.onUnFocus!();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     super.dispose();
-
+    keyboardSubscription.cancel();
     _searchNode.dispose();
   }
 
@@ -77,7 +104,6 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
             // SEARCH HISTORY LIST
             widget.searchHistory != null &&
                     widget.searchHistory!.isNotEmpty &&
-                    _isFocused &&
                     isKeyboardVisible
                 ? _searchHistoryList()
                 : Container(),
@@ -90,58 +116,66 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
   Widget _searchHistoryList() {
     return Positioned(
       top: 50,
-      child: SizedBox(
+      child: Container(
         width: MediaQuery.of(context).size.width,
-        height: 400,
-        child: Column(
-          children: [
-            // TITLE
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  children: [
-                    // ICON
-                    const Icon(Icons.access_time_outlined),
-                    // TITLE
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: RichText(
-                        text: const TextSpan(children: [
-                          // RECENT
-                          TextSpan(
-                            text: "Recent",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+        // HEIGHT OF HISTORY THING WILL BE SCREEN HEIGHT - HEIGHT OF SEARCH BAR - HEIGHT OF KEYBOARD
+        height: MediaQuery.of(context).size.height -
+            widget.searchBarHeight -
+            MediaQuery.of(context).viewInsets.bottom,
+        // decoration: const BoxDecoration(color: Colors.blue),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            children: [
+              // TITLE
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    children: [
+                      // ICON
+                      const Icon(Icons.access_time_outlined),
+                      // TITLE
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: RichText(
+                          text: const TextSpan(children: [
+                            // RECENT
+                            TextSpan(
+                              text: "Recent",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
                             ),
-                          ),
-                          // SEARCHES
-                          TextSpan(
-                            text: " Searches",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w300,
+                            // SEARCHES
+                            TextSpan(
+                              text: " Searches",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w300,
+                              ),
                             ),
-                          ),
-                        ]),
+                          ]),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            // ACTUAL LIST
-            Expanded(
-              child: ListView.builder(
-                itemCount: widget.searchHistory!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return SearchHistoryItem(text: widget.searchHistory![index]);
-                },
+              // ACTUAL LIST
+              Expanded(
+                child: ListView.builder(
+                  itemCount: widget.searchHistory!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return SearchHistoryItem(
+                        text: widget.searchHistory![index]);
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -183,48 +217,40 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
               child: Padding(
                 padding:
                     const EdgeInsets.only(left: 6.0, right: 6.0, bottom: 1.0),
-                child: Focus(
-                  onFocusChange: (hasFocus) {
-                    setState(() {
-                      _isFocused = hasFocus;
-                    });
-                  },
-                  child: TextFormField(
-                    showCursor: isKeyBoardVisible,
-                    keyboardType: TextInputType.text,
-                    controller: widget.editingController,
-                    autofocus: false,
-                    maxLines: 1,
-                    textAlignVertical: TextAlignVertical.center,
-                    decoration: InputDecoration(
-                      hintText: widget.placeHolder,
-                      border: InputBorder.none,
-                    ),
-                    onChanged: (newValue) {
-                      _handleShowClearIcon(newValue);
-
-                      if (widget.onChangeInput != null) {
-                        widget.onChangeInput!(newValue);
-                      }
-
-                      if (newValue.isEmpty && widget.onClear != null) {
-                        widget.onClear!();
-                      }
-                    },
-                    onFieldSubmitted: (value) {
-                      debugPrint(value);
-
-                      if (value.isNotEmpty) {
-                        if (widget.onSubmit != null) {
-                          widget.onSubmit!(value);
-                        }
-                        // widget.editingController.clear();
-                        // setState(() {
-                        //   _isShowClearIcon = false;
-                        // });
-                      }
-                    },
+                child: TextFormField(
+                  keyboardType: TextInputType.text,
+                  controller: widget.editingController,
+                  autofocus: false,
+                  maxLines: 1,
+                  textAlignVertical: TextAlignVertical.center,
+                  decoration: InputDecoration(
+                    hintText: widget.placeHolder,
+                    border: InputBorder.none,
                   ),
+                  onChanged: (newValue) {
+                    _handleShowClearIcon(newValue);
+
+                    if (widget.onChangeInput != null) {
+                      widget.onChangeInput!(newValue);
+                    }
+
+                    if (newValue.isEmpty && widget.onClear != null) {
+                      widget.onClear!();
+                    }
+                  },
+                  onFieldSubmitted: (value) {
+                    debugPrint(value);
+
+                    if (value.isNotEmpty) {
+                      if (widget.onSubmit != null) {
+                        widget.onSubmit!(value);
+                      }
+                      // widget.editingController.clear();
+                      // setState(() {
+                      //   _isShowClearIcon = false;
+                      // });
+                    }
+                  },
                 ),
               ),
             ),
