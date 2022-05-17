@@ -63,3 +63,6 @@ const LinearGradient mainScreenBackground = LinearGradient(
 const SEARCH_SCREEN_MAIN_TEXT = "What are you looking for?";
 const SEARCH_SCREEN_SECONDARY_TEXT =
     "Find your favorite anime between more than 10,000 animes";
+
+// MAX RECENT SEACHERS
+const MAX_SEARCHES = 5;

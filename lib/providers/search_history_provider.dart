@@ -1,3 +1,4 @@
+import 'package:anihub_flutter/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 
 class SearchHistoryProvider extends ChangeNotifier {
@@ -8,7 +9,10 @@ class SearchHistoryProvider extends ChangeNotifier {
   // FUNCTION THAT ADDS A STRING WHEN USER SEARCHS SOMETHING NEW
   void addToSearchHistory(String searchInput) {
     _searchHistory.insert(0, searchInput);
-
+    if (_searchHistory.length > MAX_SEARCHES) {
+      // REMOVE LAST
+      _searchHistory.removeLast();
+    }
     notifyListeners();
   }
 

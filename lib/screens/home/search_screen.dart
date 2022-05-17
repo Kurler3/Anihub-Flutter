@@ -6,7 +6,7 @@ import 'package:anihub_flutter/utils/constants/anime_constants.dart';
 import 'package:anihub_flutter/widgets/anime/anime_card.dart';
 import 'package:anihub_flutter/widgets/anime_list_widget.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
-import 'package:anihub_flutter/widgets/search_bar.dart';
+import 'package:anihub_flutter/widgets/SearchBar/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
@@ -19,9 +19,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  // USING THIS KEY TO PREVENT SCROLLING BACK TO TOP WHEN FETCHING MORE IN GRAPHQL
-  final _gridKey = GlobalKey();
-
   final TextEditingController _searchController = TextEditingController();
 
   // SCROLL CONTROLLER FOR FETCHIGN MORE ANIME DATA.
@@ -67,6 +64,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   setState(() {
                     _searchInput = value;
                   });
+
+                  // ADD TO SEARCH HISTORY
+                  Provider.of<SearchHistoryProvider>(context, listen: false)
+                      .addToSearchHistory(value);
                 },
                 onClear: () {
                   setState(() {
