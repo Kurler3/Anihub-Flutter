@@ -92,6 +92,7 @@ class Anime {
     required this.genres,
     required this.averageScore,
     required this.isAdult,
+    this.animeTrailer,
   });
 
   static Anime fromQueryResultMap(Map<String, dynamic> data) {
@@ -112,6 +113,12 @@ class Anime {
       genres: List<String>.from(data["genres"]),
       averageScore: data["averageScore"],
       isAdult: data["isAdult"],
+      animeTrailer: data['trailer'] != null
+          ? AnimeTrailer(
+              id: data['trailer']['id'],
+              linkToVideo: data['trailer']['site'],
+              thumbnailUrl: data['trailer']['thumbnail'])
+          : null,
     );
   }
 }

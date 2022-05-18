@@ -65,11 +65,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 onSubmit: (value) {
                   setState(() {
                     _searchInput = value;
+                    _isInputting = false;
                   });
 
-                  // ADD TO SEARCH HISTORY
-                  Provider.of<SearchHistoryProvider>(context, listen: false)
-                      .addToSearchHistory(value);
+                  if (!searchHistory.contains(value)) {
+                    // ADD TO SEARCH HISTORY
+                    Provider.of<SearchHistoryProvider>(context, listen: false)
+                        .addToSearchHistory(value);
+                  }
                 },
                 onClear: () {
                   setState(() {
@@ -86,6 +89,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     _isInputting = false;
                   });
                 },
+                isInputting: _isInputting,
               ),
             ),
 

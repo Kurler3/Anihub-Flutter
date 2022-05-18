@@ -88,6 +88,11 @@ const String ANIME_LIST_QUERY = """
           genres
           averageScore
           isAdult
+          trailer {
+            id
+            site
+            thumbnail
+          }
         }
       }
     }

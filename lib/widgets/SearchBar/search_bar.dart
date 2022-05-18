@@ -32,6 +32,8 @@ class SearchBar extends StatefulWidget {
   final double searchBarWidth;
   final double searchBarHeight;
 
+  final bool? isInputting;
+
   const SearchBar({
     Key? key,
     required this.placeHolder,
@@ -44,6 +46,7 @@ class SearchBar extends StatefulWidget {
     this.searchHistory,
     this.onFocus,
     this.onUnFocus,
+    this.isInputting,
   }) : super(key: key);
 
   @override
@@ -96,15 +99,16 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return KeyboardVisibilityBuilder(
       builder: (BuildContext context, bool isKeyboardVisible) {
-        return Stack(
-          clipBehavior: Clip.none,
+        return Column(
+          //clipBehavior: Clip.none,
           children: [
             // SEARCH BAR
             _searchInput(isKeyboardVisible),
             // SEARCH HISTORY LIST
             widget.searchHistory != null &&
                     widget.searchHistory!.isNotEmpty &&
-                    isKeyboardVisible
+                    isKeyboardVisible &&
+                    widget.isInputting!
                 ? _searchHistoryList()
                 : Container(),
           ],
@@ -114,68 +118,73 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
   }
 
   Widget _searchHistoryList() {
-    return Positioned(
-      top: 50,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        // HEIGHT OF HISTORY THING WILL BE SCREEN HEIGHT - HEIGHT OF SEARCH BAR - HEIGHT OF KEYBOARD
-        height: MediaQuery.of(context).size.height -
-            widget.searchBarHeight -
-            MediaQuery.of(context).viewInsets.bottom,
-        // decoration: const BoxDecoration(color: Colors.blue),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Column(
-            children: [
-              // TITLE
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      // ICON
-                      const Icon(Icons.access_time_outlined),
-                      // TITLE
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: RichText(
-                          text: const TextSpan(children: [
-                            // RECENT
-                            TextSpan(
-                              text: "Recent",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      // HEIGHT OF HISTORY THING WILL BE SCREEN HEIGHT - HEIGHT OF SEARCH BAR - HEIGHT OF KEYBOARD
+      height: MediaQuery.of(context).size.height -
+          widget.searchBarHeight -
+          MediaQuery.of(context).viewInsets.bottom,
+      // decoration: const BoxDecoration(color: Colors.blue),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          children: [
+            // TITLE
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  children: [
+                    // ICON
+                    const Icon(Icons.access_time_outlined),
+                    // TITLE
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: RichText(
+                        text: const TextSpan(children: [
+                          // RECENT
+                          TextSpan(
+                            text: "Recent",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
-                            // SEARCHES
-                            TextSpan(
-                              text: " Searches",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w300,
-                              ),
+                          ),
+                          // SEARCHES
+                          TextSpan(
+                            text: " Searches",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300,
                             ),
-                          ]),
-                        ),
+                          ),
+                        ]),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              // ACTUAL LIST
-              Expanded(
-                child: ListView.builder(
-                  itemCount: widget.searchHistory!.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return SearchHistoryItem(
-                        text: widget.searchHistory![index]);
-                  },
-                ),
+            ),
+            // ACTUAL LIST
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: widget.searchHistory!.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return SearchHistoryItem(
+                    text: widget.searchHistory![index],
+                    onSubmit: (value) {
+                      widget.onSubmit!(value);
+                      // HIDE KEYBOARD
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    },
+                    index: index,
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -239,16 +248,10 @@ class _SearchBarState extends State<SearchBar> with WidgetsBindingObserver {
                     }
                   },
                   onFieldSubmitted: (value) {
-                    debugPrint(value);
-
                     if (value.isNotEmpty) {
                       if (widget.onSubmit != null) {
                         widget.onSubmit!(value);
                       }
-                      // widget.editingController.clear();
-                      // setState(() {
-                      //   _isShowClearIcon = false;
-                      // });
                     }
                   },
                 ),

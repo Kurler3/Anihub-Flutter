@@ -65,4 +65,4 @@ const SEARCH_SCREEN_SECONDARY_TEXT =
     "Find your favorite anime between more than 10,000 animes";
 
 // MAX RECENT SEACHERS
-const MAX_SEARCHES = 5;
+const MAX_SEARCHES = 4;

@@ -1,4 +1,4 @@
-import 'package:anihub_flutter/classes/watching_anime.dart';
+import 'package:anihub_flutter/classes/anime/watching_anime.dart';
 
 class UserModel {
   // IDENTIFICATION
