@@ -35,11 +35,14 @@ class AnimeCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               height: 180,
-              child: CommonNetworkImage(
-                imageUrl: animeData.animeCover.extraLarge,
-                //TODO WILL PROB CHANGE LATER TO A CUSTOM LOADING BUILDER
-                loadingContainerHeight: ANIME_CARD_DIMENSIONS,
-                loadingContainerWidth: ANIME_CARD_DIMENSIONS,
+              child: Hero(
+                tag: "anime_card_cover_${animeData.id}",
+                child: CommonNetworkImage(
+                  imageUrl: animeData.animeCover.extraLarge,
+                  //TODO WILL PROB CHANGE LATER TO A CUSTOM LOADING BUILDER
+                  loadingContainerHeight: ANIME_CARD_DIMENSIONS,
+                  loadingContainerWidth: ANIME_CARD_DIMENSIONS,
+                ),
               ),
             ),
 

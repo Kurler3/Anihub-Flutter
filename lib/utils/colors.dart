@@ -35,4 +35,7 @@ const buttonBackgroundColor = Color.fromARGB(255, 84, 22, 92);
 const goodGreen = Color.fromARGB(183, 68, 199, 2);
 
 // COLOR BAD
-const badRed = Color.fromARGB(238, 202, 16, 16);
+const badRed = Color.fromARGB(230, 202, 16, 16);
+
+// COLOR GOLDER
+const goldenColor = Color.fromARGB(255, 246, 210, 39);
