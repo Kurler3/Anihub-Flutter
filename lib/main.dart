@@ -2,6 +2,7 @@ import 'package:anihub_flutter/providers/search_history_provider.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/screens/app.dart';
 import 'package:anihub_flutter/utils/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -22,14 +23,6 @@ void main() async {
     'https://graphql.anilist.co/',
   );
 
-  // final AuthLink authLink = AuthLink(
-  //   getToken: () async => 'Bearer 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',
-  //   // OR
-  //   // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
-  // );
-
-  // final Link link = authLink.concat(httpLink);
-
   ValueNotifier<GraphQLClient> client = ValueNotifier(
     GraphQLClient(
       link: httpLink,
@@ -38,9 +31,25 @@ void main() async {
     ),
   );
 
-  runApp(GraphQLProvider(
-    client: client,
-    child: const MyApp(),
+  runApp(MultiProvider(
+    providers: [
+      // USER PROVIDER
+      ChangeNotifierProvider<UserProvider>(
+        create: (_) => UserProvider(),
+        child: GraphQLProvider(
+          client: client,
+          child: const MyApp(),
+        ),
+      ),
+      // SEARCH HISTORY PROVIDER
+      ChangeNotifierProvider(
+        create: (_) => SearchHistoryProvider(),
+      ),
+    ],
+    child: GraphQLProvider(
+      client: client,
+      child: const MyApp(),
+    ),
   ));
 }
 
@@ -54,26 +63,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        // USER PROVIDER
-        ChangeNotifierProvider(
-          create: (_) => UserProvider(),
-        ),
-        // SEARCH HISTORY PROVIDER
-        ChangeNotifierProvider(
-          create: (_) => SearchHistoryProvider(),
-        ),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'AniHub',
-        theme:
-            ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
-        // IN APP ROOT CHECK FOR AUTH CHANGES
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'AniHub',
+      theme:
+          ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
+      // IN APP ROOT CHECK FOR AUTH CHANGES
 
-        home: const AppRoot(),
-      ),
+      home: const AppRoot(),
     );
   }
 }

@@ -1,11 +1,14 @@
 import 'dart:ffi';
 
 import 'package:anihub_flutter/classes/anime/anime.dart';
+import 'package:anihub_flutter/models/user.dart';
+import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/utils/colors.dart';
-import 'package:anihub_flutter/widgets/common_elevated_button.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
+import 'package:anihub_flutter/widgets/favorite_button.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DetailedAnimeScreen extends StatefulWidget {
   final Anime animeData;
@@ -22,6 +25,8 @@ class DetailedAnimeScreen extends StatefulWidget {
 class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
   @override
   Widget build(BuildContext context) {
+    UserModel _currentUser = Provider.of<UserProvider>(context).getUser!;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -38,10 +43,6 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
                 width: MediaQuery.of(context).size.width,
                 height: 300,
                 decoration: const BoxDecoration(
-                  // borderRadius: BorderRadius.only(
-                  //   bottomRight: Radius.circular(20),
-                  //   bottomLeft: Radius.circular(20),
-                  // ),
                   border: Border(
                     bottom: BorderSide(
                       color: mainOrange,
@@ -74,33 +75,7 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
                   ),
 
                   // LIKE THING
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // LIKE BTN
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.favorite,
-                          size: 25,
-                        ),
-                      ),
-                      // FAVORITE COUNT
-                      Positioned(
-                        bottom: -23,
-                        left: 4,
-                        child: Container(
-                          width: 40,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: mainGrey, width: 2.0),
-                            borderRadius: BorderRadius.circular(3.0),
-                          ),
-                          child: const Center(child: Text("0")),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _likeStack(_currentUser),
 
                   // ADD TO WATCHLIST BUTTON
                 ],
@@ -109,6 +84,40 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _likeStack(UserModel currentUser) {
+    bool _isLiked =
+        currentUser.favoriteAnimes.contains(widget.animeData.id.toString());
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // LIKE BTN
+        FavoriteButton(
+            isAnimated: true,
+            isFavorited: _isLiked,
+            onClick: () {
+              // NEED CALL USERPROVIDER FUNCTION.
+              Provider.of<UserProvider>(context, listen: false)
+                  .addRemoveFavoriteAnime(!_isLiked, widget.animeData);
+            }),
+        // FAVORITE COUNT
+        Positioned(
+          bottom: -23,
+          left: 4,
+          child: Container(
+            width: 40,
+            height: 30,
+            decoration: BoxDecoration(
+              border: Border.all(color: mainGrey, width: 2.0),
+              borderRadius: BorderRadius.circular(3.0),
+            ),
+            child: const Center(child: Text("0")),
+          ),
+        ),
+      ],
     );
   }
 }

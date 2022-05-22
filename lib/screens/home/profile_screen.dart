@@ -1,3 +1,4 @@
+import 'package:anihub_flutter/back_end_methods/auth_methods.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -8,10 +9,21 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  signOut() async {
+    AuthMethods().signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("PROFILE SCREEN BOI"),
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(onPressed: signOut, icon: Icon(Icons.logout)),
+        ],
+      ),
+      body: const Center(
+        child: Text("PROFILE SCREEN BOI"),
+      ),
     );
   }
 }

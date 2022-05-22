@@ -6,6 +6,7 @@ import 'package:anihub_flutter/screens/auth/login_screen.dart';
 import 'package:anihub_flutter/screens/home/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AppRoot extends StatefulWidget {
   const AppRoot({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class _AppRootState extends State<AppRoot> {
     super.initState();
 
     // FETCH USER DETAILS AND UPDATE THE PROVIDER VALUE.
-    UserProvider().fetchUserDetails();
+    Provider.of<UserProvider>(context, listen: false).fetchUserDetails();
   }
 
   @override

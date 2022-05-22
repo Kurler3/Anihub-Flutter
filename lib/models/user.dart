@@ -75,11 +75,11 @@ class UserModel {
         email: map['email'],
         profilePicUrl: map['profilePicUrl'],
         backgroundPicUrl: map["backgroundPicUrl"],
-        followers: map["followers"],
-        following: map["following"],
-        favoriteAnimes: map["favoriteAnimes"],
-        watchList: map["watchList"],
-        currentlyWatching: map["currentlyWatching"],
-        finishedWatching: map["finishedWatching"],
+        followers: map["followers"].cast<String>(),
+        following: map["following"].cast<String>(),
+        favoriteAnimes: map["favoriteAnimes"].cast<String>(),
+        watchList: map["watchList"].cast<String>(),
+        currentlyWatching: map["currentlyWatching"].cast<WatchingAnime>(),
+        finishedWatching: map["finishedWatching"].cast<String>(),
       );
 }

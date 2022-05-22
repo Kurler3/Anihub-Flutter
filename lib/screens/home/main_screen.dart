@@ -1,6 +1,8 @@
+import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -11,6 +13,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // FETCH USER DETAILS AND UPDATE THE PROVIDER VALUE.
+    Provider.of<UserProvider>(context, listen: false).fetchUserDetails();
+  }
 
   void _onBottomNavigationItemTapped(int index) {
     setState(() {
