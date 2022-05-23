@@ -4,6 +4,7 @@ import 'package:anihub_flutter/classes/anime/anime.dart';
 import 'package:anihub_flutter/models/user.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/utils/colors.dart';
+import 'package:anihub_flutter/utils/functions.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/favorite_button.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
@@ -23,6 +24,8 @@ class DetailedAnimeScreen extends StatefulWidget {
 }
 
 class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     UserModel _currentUser = Provider.of<UserProvider>(context).getUser!;
@@ -98,10 +101,16 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
         FavoriteButton(
             isAnimated: true,
             isFavorited: _isLiked,
-            onClick: () {
+            onClick: () async {
+              // SET LOADING
+              buildLoadingDialog(context);
+
               // NEED CALL USERPROVIDER FUNCTION.
-              Provider.of<UserProvider>(context, listen: false)
+              await Provider.of<UserProvider>(context, listen: false)
                   .addRemoveFavoriteAnime(!_isLiked, widget.animeData);
+
+              // REMOVE LOADING
+              Navigator.pop(context);
             }),
         // FAVORITE COUNT
         Positioned(

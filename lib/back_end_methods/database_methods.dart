@@ -61,19 +61,41 @@ class DatabaseMethods {
 
       // IF DOESN'T EXIST, THEN CREATE.
       // OTHERWISE MERGE THE favoritedBy WITH EXISTING ONE.
+      DocumentSnapshot<Map<String, dynamic>> animeSnapshot =
+          await _firebaseFirestore
+              .collection('animes')
+              .doc(animeData.id.toString())
+              .get();
+
+      Map<String, dynamic> setData;
+
+      if (animeSnapshot.exists) {
+        setData = {
+          "favoritedBy": isAdd
+              ? [...animeSnapshot.data()!['favoritedBy'], user.uid]
+              : animeSnapshot
+                  .data()!['favoritedBy']
+                  .where((userId) => userId != user.uid)
+                  .toList(),
+        };
+      } else {
+        setData = AnimeBackend.toMap(
+          animeBackend: AnimeBackend(
+            uid: animeData.id.toString(),
+            favoritedBy: [user.uid],
+            nativeTitle: animeData.nativeTitle!,
+            status: animeData.status,
+            englishTitle: animeData.englishTitle,
+            romajiTitle: animeData.romajiTitle,
+          ),
+        );
+      }
 
       // NEED TO ADD/REMOVE FROM ANIME BACK-END IN FIREBASE
       await _firebaseFirestore
           .collection('animes')
           .doc(animeData.id.toString())
-          .set(
-              AnimeBackend.toMap(
-                  animeBackend: AnimeBackend(
-                      uid: animeData.id.toString(),
-                      favoritedBy: favoritedBy,
-                      nativeTitle: nativeTitle,
-                      status: status)),
-              SetOptions(merge: true));
+          .set(setData, SetOptions(merge: true));
 
       // RETURN NEW USER MODEL
       userModel.favoriteAnimes = newFavoritedList;
@@ -81,6 +103,7 @@ class DatabaseMethods {
       return userModel;
     } catch (e) {
       debugPrint("Error adding/removing favorite anime" + e.toString());
+      return null;
     }
   }
 
@@ -89,4 +112,17 @@ class DatabaseMethods {
   Stream<DocumentSnapshot<Map<String, dynamic>>> getAnimeBackendDetails(
           int id) =>
       _firebaseFirestore.collection("animes").doc(id.toString()).snapshots();
+
+  Future<bool> checkIfDocExists(String collectionName, String docId) async {
+    try {
+      // Get reference to Firestore collection
+      var collectionRef = _firebaseFirestore.collection(collectionName);
+
+      var doc = await collectionRef.doc(docId).get();
+      return doc.exists;
+    } catch (e) {
+      debugPrint("Error checking if doc exists: " + e.toString());
+      return false;
+    }
+  }
 }

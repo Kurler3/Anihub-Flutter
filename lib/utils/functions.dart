@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -94,4 +95,19 @@ hasPickImagePermission(bool isCamera) async {
       return true;
     }
   }
+}
+
+// SHOW LOADING DIALOG
+buildLoadingDialog(BuildContext context) {
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: SpinKitDoubleBounce(
+            color: mainOrange,
+            size: 50.0,
+          ),
+        );
+      });
 }
