@@ -107,11 +107,60 @@ class DatabaseMethods {
     }
   }
 
+  // ADD/REMOVE FROM USERS WATCHLIST
+  Future<UserModel?> addRemoveFromWatchlist(bool isAdd, Anime animeData) async {
+    try {
+      User? user = _firebaseAuth.currentUser;
+
+      DocumentSnapshot<Map<String, dynamic>> userDocumentSnapshot =
+          await _firebaseFirestore.collection('users').doc(user!.uid).get();
+
+      UserModel userModel =
+          UserModel.fromMap(map: userDocumentSnapshot.data()!);
+
+      List<String> newWatchlist = isAdd
+          ? [...userModel.watchList, animeData.id.toString()]
+          : userModel.watchList
+              .where((id) => id != animeData.id.toString())
+              .toList();
+
+      _firebaseFirestore.collection('users').doc(userModel.uid).set({
+        "watchList": newWatchlist,
+      }, SetOptions(merge: true));
+
+      userModel.watchList = newWatchlist;
+
+      return userModel;
+    } catch (e) {
+      debugPrint("Error when adding/removing from watchlist" + e.toString());
+    }
+  }
+
   // ANIME METHODS
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> getAnimeBackendDetails(
           int id) =>
       _firebaseFirestore.collection("animes").doc(id.toString()).snapshots();
+
+  // GET NUM OF LIKES GIVEN AN ANIME ID.
+  Future<int> getAnimeFavCount(
+    Anime animeData,
+  ) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> animeSnapshot =
+          await _firebaseFirestore
+              .collection("animes")
+              .doc(animeData.id.toString())
+              .get();
+
+      return animeSnapshot.exists
+          ? AnimeBackend.fromMap(animeSnapshot.data()!).favoritedBy.length
+          : 0;
+    } catch (e) {
+      debugPrint("Error fetching anime fav count: " + e.toString());
+      return 0;
+    }
+  }
 
   Future<bool> checkIfDocExists(String collectionName, String docId) async {
     try {

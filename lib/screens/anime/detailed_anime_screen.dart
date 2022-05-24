@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:anihub_flutter/back_end_methods/database_methods.dart';
 import 'package:anihub_flutter/classes/anime/anime.dart';
 import 'package:anihub_flutter/models/user.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
@@ -9,6 +10,7 @@ import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/favorite_button.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 class DetailedAnimeScreen extends StatefulWidget {
@@ -24,8 +26,6 @@ class DetailedAnimeScreen extends StatefulWidget {
 }
 
 class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
-  bool _isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     UserModel _currentUser = Provider.of<UserProvider>(context).getUser!;
@@ -63,28 +63,76 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
               child: Row(
                 children: [
                   // TITLE
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                    child: Text(
-                      widget.animeData.englishTitle ??
-                          widget.animeData.romajiTitle ??
-                          widget.animeData.nativeTitle!,
-                      style: const TextStyle(
-                        color: goldenColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.35,
+                    height: 50,
+                    // constraints: BoxConstraints(
+                    //   maxWidth: MediaQuery.of(context).size.width * 0.4,
+                    //   maxHeight: 50,
+                    // ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: Text(
+                          widget.animeData.englishTitle ??
+                              widget.animeData.romajiTitle ??
+                              widget.animeData.nativeTitle!,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: goldenColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
                       ),
                     ),
                   ),
 
                   // LIKE THING
                   _likeStack(_currentUser),
-
+                  // FILL UP THE REMAINING SPACE
+                  const Spacer(),
                   // ADD TO WATCHLIST BUTTON
+                  _watchListBtn(_currentUser),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _watchListBtn(UserModel currentUser) {
+    bool isInWatchlist =
+        currentUser.watchList.contains(widget.animeData.id.toString());
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      width: 150,
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: () async {
+          // SET LOADING
+          buildLoadingDialog(context);
+
+          await Provider.of<UserProvider>(context, listen: false)
+              .addRemoveFromWatchlist(!isInWatchlist, widget.animeData);
+
+          // REMOVE LOADING
+          Navigator.pop(context);
+        },
+        label: Center(
+          child: Text(
+            isInWatchlist ? "Remove from watchlist" : "Add to watchlist",
+            textAlign: TextAlign.center,
+          ),
+        ),
+        icon: Icon(isInWatchlist ? Icons.remove_circle : Icons.add),
+        // DECORATION :)
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(
+              isInWatchlist ? Colors.red : Colors.blue),
         ),
       ),
     );
@@ -123,7 +171,38 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
               border: Border.all(color: mainGrey, width: 2.0),
               borderRadius: BorderRadius.circular(3.0),
             ),
-            child: const Center(child: Text("0")),
+            child: FutureBuilder(
+              future: DatabaseMethods().getAnimeFavCount(widget.animeData),
+              builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text("Error"),
+                    );
+                  } else if (snapshot.hasData) {
+                    final int count = snapshot.data!;
+
+                    return Center(
+                      child: Text(count.toString()),
+                    );
+                  }
+                } else if (snapshot.hasData) {
+                  final int count = snapshot.data!;
+
+                  return Center(
+                    child: Text(count.toString()),
+                  );
+                }
+
+                // LOADING
+                return const Center(
+                  child: SpinKitDualRing(
+                    color: mainOrange,
+                    size: 10.0,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

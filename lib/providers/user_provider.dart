@@ -24,4 +24,10 @@ class UserProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future addRemoveFromWatchlist(bool isAdd, Anime animeData) async {
+    _user = await DatabaseMethods().addRemoveFromWatchlist(isAdd, animeData);
+
+    notifyListeners();
+  }
 }

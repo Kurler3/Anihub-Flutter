@@ -15,9 +15,9 @@ class AnimeBackend {
     this.romajiTitle,
   });
 
-  static fromMap(Map<String, dynamic> map) => AnimeBackend(
+  static AnimeBackend fromMap(Map<String, dynamic> map) => AnimeBackend(
         uid: map['uid'],
-        favoritedBy: map['favoritedBy'],
+        favoritedBy: map['favoritedBy'].cast<String>(),
         nativeTitle: map['nativeTitle'],
         status: map['status'],
         englishTitle: map['englishTitle'],
