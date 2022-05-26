@@ -5,6 +5,7 @@ import 'package:anihub_flutter/classes/anime/anime.dart';
 import 'package:anihub_flutter/models/user.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/utils/colors.dart';
+import 'package:anihub_flutter/utils/constants.dart';
 import 'package:anihub_flutter/utils/functions.dart';
 import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/favorite_button.dart';
@@ -36,68 +37,139 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
         backgroundColor: Colors.transparent,
       ),
       body: CommonSingleChildScroll(
-        childWidget: Column(
-          children: [
-            // COVER IMAGE
-            Hero(
-              tag: "anime_card_cover_${widget.animeData.id}",
-              child: Container(
-                clipBehavior: Clip.hardEdge,
-                width: MediaQuery.of(context).size.width,
-                height: 300,
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: mainOrange,
-                      width: 3,
+        childWidget: Container(
+          decoration: const BoxDecoration(
+            gradient: mainScreenBackground,
+          ),
+          child: Column(
+            children: [
+              // COVER IMAGE
+              Hero(
+                tag: "anime_card_cover_${widget.animeData.id}",
+                child: Container(
+                  clipBehavior: Clip.hardEdge,
+                  width: MediaQuery.of(context).size.width,
+                  height: 300,
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: mainOrange,
+                        width: 3,
+                      ),
                     ),
                   ),
+                  child: CommonNetworkImage(
+                      imageUrl: widget.animeData.animeCover.extraLarge),
                 ),
-                child: CommonNetworkImage(
-                    imageUrl: widget.animeData.animeCover.extraLarge),
               ),
-            ),
-            // ROW (TITLE, LIKES, ADD TO WATCHLIST)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Row(
-                children: [
-                  // TITLE
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: 50,
-                    // constraints: BoxConstraints(
-                    //   maxWidth: MediaQuery.of(context).size.width * 0.4,
-                    //   maxHeight: 50,
-                    // ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                        child: Text(
-                          widget.animeData.englishTitle ??
-                              widget.animeData.romajiTitle ??
-                              widget.animeData.nativeTitle!,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: goldenColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+              // ROW (TITLE, LIKES, ADD TO WATCHLIST)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Row(
+                  children: [
+                    // TITLE
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: 50,
+                      // constraints: BoxConstraints(
+                      //   maxWidth: MediaQuery.of(context).size.width * 0.4,
+                      //   maxHeight: 50,
+                      // ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: Text(
+                            widget.animeData.englishTitle ??
+                                widget.animeData.romajiTitle ??
+                                widget.animeData.nativeTitle!,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(
+                              color: goldenColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // LIKE THING
-                  _likeStack(_currentUser),
-                  // FILL UP THE REMAINING SPACE
-                  const Spacer(),
-                  // ADD TO WATCHLIST BUTTON
-                  _watchListBtn(_currentUser),
-                ],
+                    // LIKE THING
+                    _likeStack(_currentUser),
+                    // FILL UP THE REMAINING SPACE
+                    const Spacer(),
+                    // ADD TO WATCHLIST BUTTON
+                    _watchListBtn(_currentUser),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // --------------- RATING STAR -----------------------
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                child: Row(
+                  children: [
+                    // STAR ICON
+                    Container(
+                      decoration:
+                          BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey[400]!,
+                          blurRadius: 8.0,
+                        ),
+                      ]),
+                      child: const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        // size: 15,
+                      ),
+                    ),
+
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    // AVERAGE SCORE
+                    Text(
+                      (widget.animeData.averageScore / 10).toString(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // YEAR + SEASON + GENRES
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    // SEASON YEAR
+                    Text(
+                      widget.animeData.seasonYear.toString(),
+                      style: const TextStyle(
+                        color: mainGrey,
+                      ),
+                    ),
+                    // DIVIDER
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Container(
+                        color: mainGrey,
+                        height: 15,
+                        width: 2,
+                      ),
+                    ),
+                    // SEASON
+
+                    // GENRES
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
