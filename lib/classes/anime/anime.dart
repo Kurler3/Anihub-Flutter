@@ -93,6 +93,7 @@ class Anime {
     required this.averageScore,
     required this.isAdult,
     this.animeTrailer,
+    this.description,
   });
 
   static Anime fromQueryResultMap(Map<String, dynamic> data) {
@@ -103,6 +104,7 @@ class Anime {
       romajiTitle: data["title"]["romaji"],
       status: data["status"],
       season: data["season"],
+      description: data["description"],
       seasonYear: data["seasonYear"],
       animeCover: AnimeCover(
         extraLarge: data["coverImage"]["extraLarge"],

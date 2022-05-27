@@ -78,6 +78,7 @@ const String ANIME_LIST_QUERY = """
           }
           status
           season
+          description
           seasonYear
           coverImage {
             extraLarge
