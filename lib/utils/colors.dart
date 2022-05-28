@@ -6,7 +6,7 @@ const backgroundColor = Colors.black;
 // MAIN GREY COLOR
 const mainGrey = Color.fromARGB(224, 177, 177, 177);
 
-const darkGrey = Color.fromARGB(255, 250, 250, 250);
+const darkGrey = Color.fromARGB(255, 36, 35, 35);
 
 const lightGrey = Color.fromARGB(223, 231, 231, 231);
 

@@ -11,6 +11,11 @@ class CommonInput extends StatelessWidget {
   final int? maxLines;
   final bool isVisible;
   final TextInputType keyboardType;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final Color? inputBackgroundColor;
+  final FocusNode? focusNode;
+  final bool? autofocus;
 
   const CommonInput({
     Key? key,
@@ -23,6 +28,11 @@ class CommonInput extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.suffixWidget,
     this.isVisible = true,
+    this.backgroundColor,
+    this.borderColor,
+    this.inputBackgroundColor,
+    this.focusNode,
+    this.autofocus,
   }) : super(key: key);
 
   @override
@@ -31,20 +41,21 @@ class CommonInput extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15.0),
-        color: darkBlue,
-        border: Border.all(color: Colors.blue),
+        color: backgroundColor ?? darkBlue,
+        border: Border.all(color: borderColor ?? Colors.blue),
       ),
       child: Align(
         alignment: Alignment.bottomLeft,
         child: TextFormField(
+          focusNode: focusNode,
           textAlignVertical: TextAlignVertical.center,
           keyboardType: keyboardType,
           controller: controller,
           maxLines: maxLines ?? 1,
-          autofocus: false,
+          autofocus: autofocus ?? false,
           obscureText: !isVisible,
           decoration: InputDecoration(
-            fillColor: darkBlue,
+            fillColor: inputBackgroundColor ?? darkBlue,
             filled: true,
             prefixIcon: prefixWidget,
             prefixIconConstraints: const BoxConstraints(

@@ -1,9 +1,11 @@
 import 'package:anihub_flutter/classes/anime/anime.dart';
 import 'package:anihub_flutter/models/anime_backend.dart';
+import 'package:anihub_flutter/models/anime_comment.dart';
 import 'package:anihub_flutter/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseMethods {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -159,6 +161,61 @@ class DatabaseMethods {
     } catch (e) {
       debugPrint("Error fetching anime fav count: " + e.toString());
       return 0;
+    }
+  }
+
+  // GET COMMENTS GIVEN LEVEL FROM ANIME BACK-END
+  Future<QuerySnapshot<Map<String, dynamic>>?> getAnimeComments(
+      String animeUid, int level, String? parentCommentUid) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> comments = await _firebaseFirestore
+          .collection('animes')
+          .doc(animeUid)
+          .collection('comments')
+          .where(
+            'level',
+            isEqualTo: level,
+          )
+          .get();
+
+      return comments;
+    } catch (e) {
+      debugPrint("Error fetching anime comments: " + e.toString());
+      return null;
+    }
+  }
+
+  // CREATE COMMENT
+  Future createComment(
+    String userUid,
+    String animeUid,
+    String content,
+    int level,
+    String? parentCommentUid,
+  ) async {
+    try {
+      AnimeComment newComment = AnimeComment(
+        uid: const Uuid().v4(),
+        level: level,
+        ownerUid: userUid,
+        animeUid: animeUid,
+        content: content,
+        likedBy: [],
+        createdAt: Timestamp.fromDate(DateTime.now()),
+        parentCommentUid: parentCommentUid,
+      );
+
+      await _firebaseFirestore
+          .collection('animes')
+          .doc(animeUid)
+          .collection('comments')
+          .doc(newComment.uid)
+          .set(AnimeComment.toMap(comment: newComment));
+
+      return;
+    } catch (e) {
+      debugPrint("Error creating comment: " + e.toString());
+      return null;
     }
   }
 
