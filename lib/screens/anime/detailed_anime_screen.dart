@@ -1,9 +1,9 @@
 import 'package:anihub_flutter/back_end_methods/database_methods.dart';
 import 'package:anihub_flutter/classes/anime/anime.dart';
 import 'package:anihub_flutter/extensions/string_extensions.dart';
+import 'package:anihub_flutter/models/anime_backend.dart';
 import 'package:anihub_flutter/models/anime_comment.dart';
 import 'package:anihub_flutter/models/user.dart';
-import 'package:anihub_flutter/providers/anime_back_comments.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/utils/colors.dart';
 import 'package:anihub_flutter/utils/constants.dart';
@@ -14,9 +14,11 @@ import 'package:anihub_flutter/widgets/common_single_child_scroll.dart';
 import 'package:anihub_flutter/widgets/favorite_button.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';
 import 'package:anihub_flutter/widgets/vertical_divider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:paginate_firestore/paginate_firestore.dart';
 import 'package:provider/provider.dart';
 
 class DetailedAnimeScreen extends StatefulWidget {
@@ -44,28 +46,8 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool _commentsLoading = false;
     UserModel _currentUser = Provider.of<UserProvider>(context).getUser!;
-
-    List<AnimeComment> commentsList =
-        Provider.of<AnimeBackEndComments>(context, listen: true)
-            .getCommentsList;
-
-    debugPrint("CommentsList: " + commentsList.toString());
-
-    _scrollController.addListener(() async {
-      double maxScroll = _scrollController.position.maxScrollExtent;
-      double currentSroll = _scrollController.position.pixels;
-      double delta = MediaQuery.of(context).size.width * 0.20;
-
-      if (maxScroll - currentSroll <= delta) {
-        // MAKE CALL TO FETCH MORE COMMENTS
-        // FETCH FIRST COMMENTS FOR DETAILED ANIME SCREEN
-        await Provider.of<AnimeBackEndComments>(context, listen: false)
-            .fetchNextComments(widget.animeData.id.toString(), 1, null);
-
-        debugPrint("Here");
-      }
-    });
 
     return GestureDetector(
       onTap: () {
@@ -77,6 +59,7 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
           backgroundColor: Colors.transparent,
         ),
         body: CommonSingleChildScroll(
+          scrollController: _scrollController,
           childWidget: Container(
             decoration: const BoxDecoration(
               gradient: mainScreenBackground,
@@ -144,7 +127,26 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
                     maxLines: 1,
                   ),
                 ),
-                // COMMENTS LIST
+
+                Expanded(
+                  child: PaginateFirestore(
+                    itemBuilderType: PaginateBuilderType.gridView,
+                    query: DatabaseMethods().getAnimeComments(
+                        widget.animeData.id.toString(), 1, null),
+                    itemBuilder: (context, documentSnapshots, index) {
+                      AnimeComment animeComment = AnimeComment.fromMap(
+                          documentSnapshots[index].data()
+                              as Map<String, dynamic>);
+
+                      return AnimeCommentWidget(animeComment: animeComment);
+                    },
+                  ),
+                ),
+
+                // // COMMENTS LIST
+                // _commentsList(commentsList, _currentUser, _commentsLoading,
+                //     fetchMoreComments),
+
                 // FutureBuilder<QuerySnapshot<Map<String, dynamic>>?>(
                 //   future: DatabaseMethods().getAnimeComments(
                 //       widget.animeData.id.toString(), 1, null),
@@ -495,22 +497,29 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
     );
   }
 
-  // COMMENTS LIST
-  Widget _commentsList(List<AnimeComment> comments, UserModel currentUser) {
-    // List<Widget> widgetList = [
-    //   ...comments
-    //       .map((comment) => AnimeCommentWidget(animeComment: comment))
-    //       .toList(),
-    //   // TEXT BUTTON
-    //   TextButton(onPressed: () {}, child: const Text('Load more'))
-    // ];
+  // // COMMENTS LIST
+  // Widget _commentsList(List<AnimeComment> comments, UserModel currentUser,
+  //     bool _commentsLoading, Function()? fetchMoreComments) {
+  //   List<Widget> widgetList = [
+  //     ...comments
+  //         .map((comment) => AnimeCommentWidget(animeComment: comment))
+  //         .toList(),
+  //     // TEXT BUTTON
+  //     TextButton(
+  //       onPressed: fetchMoreComments,
+  //       child: const Text('Load more'),
+  //     ),
+  //     _commentsLoading == true
+  //         ? const Center(
+  //             child: CircularProgressIndicator(),
+  //           )
+  //         : Container(),
+  //   ];
 
-    return Expanded(
-      child: Column(
-        children: comments
-            .map((comment) => AnimeCommentWidget(animeComment: comment))
-            .toList(),
-      ),
-    );
-  }
+  //   return Expanded(
+  //     child: Column(
+  //       children: widgetList,
+  //     ),
+  //   );
+  // }
 }

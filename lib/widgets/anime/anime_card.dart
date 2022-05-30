@@ -1,5 +1,4 @@
 import 'package:anihub_flutter/classes/anime/anime.dart';
-import 'package:anihub_flutter/providers/anime_back_comments.dart';
 import 'package:anihub_flutter/screens/anime/detailed_anime_screen.dart';
 import 'package:anihub_flutter/utils/constants/anime_constants.dart';
 import 'package:anihub_flutter/widgets/network_image.dart';

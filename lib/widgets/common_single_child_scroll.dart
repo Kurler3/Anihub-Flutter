@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class CommonSingleChildScroll extends StatelessWidget {
   final Widget childWidget;
+  final ScrollController? scrollController;
 
   const CommonSingleChildScroll({
     Key? key,
     required this.childWidget,
+    this.scrollController,
   }) : super(key: key);
 
   @override
@@ -13,6 +15,7 @@ class CommonSingleChildScroll extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints viewportConstraints) {
         return SingleChildScrollView(
+          controller: scrollController,
           physics: const BouncingScrollPhysics(),
           child: ConstrainedBox(
             constraints: BoxConstraints(

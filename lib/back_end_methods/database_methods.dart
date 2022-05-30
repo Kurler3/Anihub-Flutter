@@ -165,58 +165,40 @@ class DatabaseMethods {
   }
 
   // GET COMMENTS GIVEN LEVEL FROM ANIME BACK-END
-  Future<QuerySnapshot<Map<String, dynamic>>?> getAnimeComments(
-      String animeUid,
-      int level,
-      String? parentCommentUid,
-      DocumentSnapshot? startAfterDoc) async {
-    try {
-      var documentList = _firebaseFirestore
-          .collection('animes')
-          .doc(animeUid)
-          .collection('comments')
-          .where(
-            'level',
-            isEqualTo: level,
-          )
-          .where(
-            "parentCommentUid",
-            isEqualTo: parentCommentUid,
-          )
-          .orderBy("createdAt")
-          .limit(8);
+  Query<Map<String, dynamic>> getAnimeComments(
+      String animeUid, int level, String? parentCommentUid) {
+    Query<Map<String, dynamic>> documentList = _firebaseFirestore
+        .collection('animes')
+        .doc(animeUid)
+        .collection('comments')
+        .where(
+          'level',
+          isEqualTo: level,
+        )
+        .where(
+          "parentCommentUid",
+          isEqualTo: parentCommentUid,
+        )
+        .orderBy("createdAt");
 
-      if (startAfterDoc != null) {
-        return await documentList.startAfterDocument(startAfterDoc).get();
-      }
-
-      return documentList.get();
-    } catch (e) {
-      debugPrint("Error fetching anime comments: " + e.toString());
-      return null;
-    }
+    return documentList;
   }
 
-  Future<DocumentSnapshot?> getLastAnimeCommentDoc(
-      String animeUid, int level, String? parentCommentUid) async {
-    try {
-      DocumentSnapshot docSnap = (await _firebaseFirestore
-          .collection('animes')
-          .doc(animeUid)
-          .collection('comments')
-          .where(
-            'level',
-            isEqualTo: level,
-          )
-          .snapshots()
-          .last) as DocumentSnapshot<Object?>;
+  // Future<DocumentSnapshot<Object?>> getLastAnimeCommentDoc(
+  //     String animeUid, int level, String? parentCommentUid) async {
+  //   DocumentSnapshot docSnap = await _firebaseFirestore
+  //       .collection('animes')
+  //       .doc(animeUid)
+  //       .collection('comments')
+  //       .where(
+  //         'level',
+  //         isEqualTo: level,
+  //       )
+  //       .snapshots()
+  //       .last as DocumentSnapshot;
 
-      return docSnap;
-    } catch (e) {
-      debugPrint("Error fetching comment: " + e.toString());
-      return null;
-    }
-  }
+  //   return docSnap;
+  // }
 
   // CREATE COMMENT
   Future createComment(

@@ -1,4 +1,3 @@
-import 'package:anihub_flutter/providers/anime_back_comments.dart';
 import 'package:anihub_flutter/providers/search_history_provider.dart';
 import 'package:anihub_flutter/providers/user_provider.dart';
 import 'package:anihub_flutter/screens/app.dart';
@@ -46,11 +45,6 @@ void main() async {
       // SEARCH HISTORY PROVIDER
       ChangeNotifierProvider(
         create: (_) => SearchHistoryProvider(),
-      ),
-
-      // ANIME BACK END COMMENTS PROVIDED
-      ChangeNotifierProvider(
-        create: (_) => AnimeBackEndComments(),
       ),
     ],
     child: GraphQLProvider(
