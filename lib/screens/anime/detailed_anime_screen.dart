@@ -36,17 +36,18 @@ class DetailedAnimeScreen extends StatefulWidget {
 class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
   bool _isDescriptionExpanded = false;
   final TextEditingController _commentInputController = TextEditingController();
+
   final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
     super.dispose();
     _commentInputController.dispose();
+    _scrollController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool _commentsLoading = false;
     UserModel _currentUser = Provider.of<UserProvider>(context).getUser!;
 
     return GestureDetector(
@@ -59,7 +60,6 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
           backgroundColor: Colors.transparent,
         ),
         body: CommonSingleChildScroll(
-          scrollController: _scrollController,
           childWidget: Container(
             decoration: const BoxDecoration(
               gradient: mainScreenBackground,
@@ -128,58 +128,7 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
                   ),
                 ),
 
-                Expanded(
-                  child: PaginateFirestore(
-                    itemBuilderType: PaginateBuilderType.gridView,
-                    query: DatabaseMethods().getAnimeComments(
-                        widget.animeData.id.toString(), 1, null),
-                    itemBuilder: (context, documentSnapshots, index) {
-                      AnimeComment animeComment = AnimeComment.fromMap(
-                          documentSnapshots[index].data()
-                              as Map<String, dynamic>);
-
-                      return AnimeCommentWidget(animeComment: animeComment);
-                    },
-                  ),
-                ),
-
-                // // COMMENTS LIST
-                // _commentsList(commentsList, _currentUser, _commentsLoading,
-                //     fetchMoreComments),
-
-                // FutureBuilder<QuerySnapshot<Map<String, dynamic>>?>(
-                //   future: DatabaseMethods().getAnimeComments(
-                //       widget.animeData.id.toString(), 1, null),
-                //   builder: (BuildContext context,
-                //       AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>?>
-                //           snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.done) {
-                //       if (snapshot.hasError) {
-                //         return const Text("Error");
-                //       } else if (snapshot.hasData) {
-                //         debugPrint(
-                //             "Length: " + snapshot.data!.docs.length.toString());
-
-                //         return snapshot.data!.docs.isNotEmpty
-                //             ? _commentsList(
-                //                 snapshot.data!.docs
-                //                     .map((commentQuerySnap) =>
-                //                         AnimeComment.fromMap(
-                //                             commentQuerySnap.data()))
-                //                     .toList(),
-                //                 _currentUser)
-                //             : const Text("No Comments yet :(");
-                //       }
-                //     }
-                //     // LOADING
-                //     return const Center(
-                //       child: SpinKitDualRing(
-                //         color: mainOrange,
-                //         size: 10.0,
-                //       ),
-                //     );
-                //   },
-                // ),
+                _commentsList(),
               ],
             ),
           ),
@@ -497,29 +446,35 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
     );
   }
 
-  // // COMMENTS LIST
-  // Widget _commentsList(List<AnimeComment> comments, UserModel currentUser,
-  //     bool _commentsLoading, Function()? fetchMoreComments) {
-  //   List<Widget> widgetList = [
-  //     ...comments
-  //         .map((comment) => AnimeCommentWidget(animeComment: comment))
-  //         .toList(),
-  //     // TEXT BUTTON
-  //     TextButton(
-  //       onPressed: fetchMoreComments,
-  //       child: const Text('Load more'),
-  //     ),
-  //     _commentsLoading == true
-  //         ? const Center(
-  //             child: CircularProgressIndicator(),
-  //           )
-  //         : Container(),
-  //   ];
+  Widget _commentsList() {
+    return Scrollbar(
+      controller: _scrollController,
+      isAlwaysShown: false,
+      child: SizedBox(
+        height: 500,
+        width: MediaQuery.of(context).size.width,
+        child: PaginateFirestore(
+          physics: const BouncingScrollPhysics(),
+          shrinkWrap: true,
+          itemBuilderType: PaginateBuilderType.listView,
+          query: DatabaseMethods()
+              .getAnimeComments(widget.animeData.id.toString(), 1, null),
+          itemBuilder: (context, documentSnapshots, index) {
+            AnimeComment animeComment = AnimeComment.fromMap(
+                documentSnapshots[index].data() as Map<String, dynamic>);
 
-  //   return Expanded(
-  //     child: Column(
-  //       children: widgetList,
-  //     ),
-  //   );
-  // }
+            return AnimeCommentWidget(animeComment: animeComment);
+          },
+          initialLoader: Container(
+            alignment: Alignment.center,
+            child: const SpinKitDualRing(
+              color: mainOrange,
+              size: 10.0,
+            ),
+          ),
+          isLive: true,
+        ),
+      ),
+    );
+  }
 }
