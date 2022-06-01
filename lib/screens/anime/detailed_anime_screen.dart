@@ -106,7 +106,7 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
 
                           // SEND COMMENT
                           await DatabaseMethods().createComment(
-                              _currentUser.uid,
+                              _currentUser,
                               widget.animeData.id.toString(),
                               _commentInputController.text,
                               1,
@@ -473,6 +473,7 @@ class _DetailedAnimeScreenState extends State<DetailedAnimeScreen> {
             ),
           ),
           isLive: true,
+          itemsPerPage: 5,
         ),
       ),
     );

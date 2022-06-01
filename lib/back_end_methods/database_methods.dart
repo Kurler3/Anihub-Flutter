@@ -10,7 +10,8 @@ import 'package:uuid/uuid.dart';
 class DatabaseMethods {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  // CREATE USER
+
+  //----------------------- USERS ------------------------------
   Future<void> uploadUser({required UserModel userData}) async {
     // NO NEED FOR TRY CATCH BECAUSE THIS FUNCTION IS CALLED INSIDE A TRY AND CATCH BLOCK.
 
@@ -135,10 +136,13 @@ class DatabaseMethods {
       return userModel;
     } catch (e) {
       debugPrint("Error when adding/removing from watchlist" + e.toString());
+      return null;
     }
   }
 
-  // ANIME METHODS
+  //------------------------------------------------------------//
+
+  //----------------- ANIME METHODS ---------------------------//
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> getAnimeBackendDetails(
           int id) =>
@@ -164,6 +168,10 @@ class DatabaseMethods {
     }
   }
 
+  //------------------------------------------------------------//
+
+  // --------------------------COMMENTS-------------------------//
+
   // GET COMMENTS GIVEN LEVEL FROM ANIME BACK-END
   Query<Map<String, dynamic>> getAnimeComments(
       String animeUid, int level, String? parentCommentUid) {
@@ -184,25 +192,9 @@ class DatabaseMethods {
     return documentList;
   }
 
-  // Future<DocumentSnapshot<Object?>> getLastAnimeCommentDoc(
-  //     String animeUid, int level, String? parentCommentUid) async {
-  //   DocumentSnapshot docSnap = await _firebaseFirestore
-  //       .collection('animes')
-  //       .doc(animeUid)
-  //       .collection('comments')
-  //       .where(
-  //         'level',
-  //         isEqualTo: level,
-  //       )
-  //       .snapshots()
-  //       .last as DocumentSnapshot;
-
-  //   return docSnap;
-  // }
-
   // CREATE COMMENT
   Future createComment(
-    String userUid,
+    UserModel user,
     String animeUid,
     String content,
     int level,
@@ -212,12 +204,14 @@ class DatabaseMethods {
       AnimeComment newComment = AnimeComment(
         uid: const Uuid().v4(),
         level: level,
-        ownerUid: userUid,
+        ownerUid: user.uid,
+        ownerProfilePic: user.profilePicUrl,
         animeUid: animeUid,
         content: content,
         likedBy: [],
         createdAt: Timestamp.fromDate(DateTime.now()),
         parentCommentUid: parentCommentUid,
+        dislikedBy: [],
       );
 
       await _firebaseFirestore
@@ -234,16 +228,14 @@ class DatabaseMethods {
     }
   }
 
-  Future<bool> checkIfDocExists(String collectionName, String docId) async {
-    try {
-      // Get reference to Firestore collection
-      var collectionRef = _firebaseFirestore.collection(collectionName);
-
-      var doc = await collectionRef.doc(docId).get();
-      return doc.exists;
-    } catch (e) {
-      debugPrint("Error checking if doc exists: " + e.toString());
-      return false;
+  // LIKE/DISLIKE COMMENT
+  Future likeDislikeComment(
+    UserModel user,
+    AnimeComment comment,
+    bool isLike,
+  ) async {
+    try {} catch (e) {
+      debugPrint("Error liking/disliking comment: " + e.toString());
     }
   }
 }

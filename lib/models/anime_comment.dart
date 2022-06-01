@@ -9,12 +9,16 @@ class AnimeComment {
   final String? parentCommentUid;
   // UID OF THE OWNER OF THE COMMENT
   final String ownerUid;
+  // URL OF PROFILE PIC OF OWNER
+  final String ownerProfilePic;
   // UID OF THE ANIME THAT THIS COMMENT BELONGS TO
   final String animeUid;
   // CONTENT OF THE COMMENT
   final String content;
   // LIST OF UIDS OF USERS THAT LIKED THIS COMMENT
   final List<String> likedBy;
+  // LIST OF UIDS OF USERS THAT DISLIKED THIS COMMENT
+  final List<String> dislikedBy;
   // DATE CREATED
   final Timestamp createdAt;
   // DATE UPDATED
@@ -28,6 +32,8 @@ class AnimeComment {
     required this.content,
     required this.likedBy,
     required this.createdAt,
+    required this.ownerProfilePic,
+    required this.dislikedBy,
     this.parentCommentUid,
     this.updatedAt,
   });
@@ -42,6 +48,8 @@ class AnimeComment {
         createdAt: map['createdAt'],
         parentCommentUid: map['parentCommentUid'],
         updatedAt: map['updatedAt'],
+        ownerProfilePic: map['ownerProfilePic'],
+        dislikedBy: map['dislikedBy'].cast<String>(),
       );
 
   static toMap({required AnimeComment comment}) {
@@ -55,6 +63,8 @@ class AnimeComment {
       "createdAt": comment.createdAt,
       "parentCommentUid": comment.parentCommentUid,
       "updatedAt": comment.updatedAt,
+      "ownerProfilePic": comment.ownerProfilePic,
+      "dislikedBy": comment.dislikedBy,
     };
   }
 }
